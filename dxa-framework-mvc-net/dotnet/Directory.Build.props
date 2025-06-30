@@ -1,0 +1,32 @@
+<Project>
+  <PropertyGroup>
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">2.4.0</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionSuffix)' == ''">a-local-123456789012</VersionSuffix>
+
+    <!-- Package versioning -->
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <InformationalVersion>$(VersionPrefix)</InformationalVersion>
+    <PackageVersionPrefix>$(VersionPrefix)</PackageVersionPrefix>
+    <PackageVersionSuffix>$(VersionSuffix)</PackageVersionSuffix>
+
+    <FileVersion Condition=" '$(BUILD_NUMBER)' == ''">$(VersionPrefix).0</FileVersion>
+	  <FileVersion Condition=" '$(BUILD_NUMBER)' != ''">$(VersionPrefix).$(BUILD_NUMBER)</FileVersion>
+
+    <!-- Copyright information -->
+    <Authors>RWS Group</Authors>
+    <Owners>RWS Group</Owners>
+    <Copyright>Copyright © 2015-$([System.DateTime]::Now.ToString('yyyy')) All Rights Reserved by the RWS Group.</Copyright>
+
+    <NoWarn>S1135;S125;NU5100;RS1022</NoWarn>
+
+    <LangVersion>latest</LangVersion>
+
+    <!-- NuGet Sources -->
+    <RestoreSources>$(RestoreSources);https://nuget.org/api/v2/</RestoreSources>
+    <LocalNugetStorage>../LocalNugetStorage</LocalNugetStorage>
+    <RestoreSources Condition=" Exists('$(LocalNugetStorage)') ">$(LocalNugetStorage);$(RestoreSources)</RestoreSources>
+
+    <NewtonsoftJsonPackageVersion>13.0.3</NewtonsoftJsonPackageVersion>
+    
+  </PropertyGroup>
+</Project>

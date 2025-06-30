@@ -22,6 +22,28 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+obj/
+*.user
+*.suo
+packages/
+.idea/
+*.iml
+.vs/
+dist/
+**/node_modules/
+**/target/
+**/node/
+**/bin/
+**/obj/
+*.user
+*.suo
+dxa-framework-datamodel/dotnet/.vs/
+dxa-framework-mvc-net/dotnet/.vs/
+dxa-module-core-net/dotnet/.vs/
+dxa-module-dynamicdocumentation-net/dotnet/.vs/
+dxa-module-search-net/dotnet/.vs/
+dxa-pca-client-net/dotnet/.vs/
+dxa-web-application-mvc-net/dotnet/.vs/
 
 # .NET Core
 project.lock.json

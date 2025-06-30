@@ -1,0 +1,44 @@
+﻿@model SitemapItem
+@using System
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Html
+@{
+    Layout = null;
+    Context.Response.ContentType = "application/xml";
+}
+<?xml version="1.0" encoding="UTF-8" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    @RenderSitemapForPagesInFolder(Model.Items)
+</urlset>
+
+@functions {
+    private IHtmlContent RenderSitemapForPagesInFolder(IEnumerable<SitemapItem> folder)
+    {
+        var content = new System.Text.StringBuilder();
+
+        foreach (var item in folder)
+        {
+            if (item.Type == "Page" && item.Url.StartsWith("/"))
+            {
+                var loc = $"{Context.Request.Scheme}://{Context.Request.Host}{item.Url}";
+                var lastmod = item.PublishedDate.HasValue
+                    ? item.PublishedDate.Value.ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                    : string.Empty;
+
+                content.AppendLine($"<url>");
+                content.AppendLine($"    <loc>{loc}</loc>");
+                if (!string.IsNullOrEmpty(lastmod))
+                {
+                    content.AppendLine($"    <lastmod>{lastmod}</lastmod>");
+                }
+                content.AppendLine($"</url>");
+            }
+            else
+            {
+                content.Append(RenderSitemapForPagesInFolder(item.Items).ToString());
+            }
+        }
+
+        return new HtmlString(content.ToString());
+    }
+}

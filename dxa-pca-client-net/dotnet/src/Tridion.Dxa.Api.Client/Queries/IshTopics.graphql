@@ -1,0 +1,45 @@
+﻿query topics($first: Int, $after: String, $inputIshItemFilter: InputIshItemFilter!, $inputSortParam: InputSortParam, $isTopicRenderingOption: IshTopicRenderOptions) {
+    ishTopics(first: $first, after: $after, filter: $inputIshItemFilter, sort: $inputSortParam, topicRenderingOptions: $isTopicRenderingOption) {
+        edges {
+			cursor
+			node {
+				...ItemFields    
+				abstract {
+				  xhtml
+				  links {
+					cmUri
+					title
+					type
+					uri
+				  }
+				}
+				relatedLinks {
+				  links {
+					cmUri
+					title
+					type
+					uri
+				  }
+				}
+				...on IshConceptTopic {
+				  body {
+					xhtml
+					sections {
+					  type
+					  xhtml
+					}
+				  }		  
+				}  
+				...on IshGenericTopic {
+				  body {
+					xhtml
+					sections {
+					  type
+					  xhtml
+					}
+				  }
+				}				
+			}		
+		}
+	}
+}

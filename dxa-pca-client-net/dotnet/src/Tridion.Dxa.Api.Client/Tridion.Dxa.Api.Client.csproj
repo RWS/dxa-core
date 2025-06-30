@@ -1,0 +1,197 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Shared\SigningServerTridionPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>
+    <PackageId>Tridion.Dxa.Api.Client</PackageId>
+    <Authors>RWS Group</Authors>
+    <Company>RWS</Company>
+    <Product>Tridion.Dxa.Api.Client</Product>
+    <Description>RWS Digital eXperience Accelerator Framework for RWS Tridion Sites.</Description>
+    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rws/dxa-pca-client-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rws/dxa-pca-client-net</RepositoryUrl>
+    <PackageIcon>images/rws-logo-128.png</PackageIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Queries\BinaryComponentByCmUri.graphql" />
+    <None Remove="Queries\BinaryComponentById.graphql" />
+    <None Remove="Queries\BinaryComponentByUrl.graphql" />
+    <None Remove="Queries\ComponentPresentation.graphql" />
+    <None Remove="Queries\ComponentPresentations.graphql" />
+    <None Remove="Queries\EntityModelById.graphql" />
+    <None Remove="Queries\ExternalItemQuery.graphql" />
+    <None Remove="Queries\Fragments\BinaryComponentFields.graphql" />
+    <None Remove="Queries\Fragments\CategoryFields.graphql" />
+    <None Remove="Queries\Fragments\ComponentFields.graphql" />
+    <None Remove="Queries\Fragments\ComponentPresentationFields.graphql" />
+    <None Remove="Queries\Fragments\ComponentTemplateFields.graphql" />
+    <None Remove="Queries\Fragments\CustomMetaFields.graphql" />
+    <None Remove="Queries\Fragments\CustomMetaFieldsFilter.graphql" />
+    <None Remove="Queries\Fragments\ItemFields.graphql" />
+    <None Remove="Queries\Fragments\KeywordFields.graphql" />
+    <None Remove="Queries\Fragments\PageFields.graphql" />
+    <None Remove="Queries\Fragments\PageItemFields.graphql" />
+    <None Remove="Queries\Fragments\PageTemplateFields.graphql" />
+    <None Remove="Queries\Fragments\PublicationFields.graphql" />
+    <None Remove="Queries\Fragments\PublicationMappingFields.graphql" />
+    <None Remove="Queries\Fragments\RecurseItems.graphql" />
+    <None Remove="Queries\Fragments\StructureGroupFields.graphql" />
+    <None Remove="Queries\Fragments\TaxonomyItemFields.graphql" />
+    <None Remove="Queries\Fragments\TaxonomyPageFields.graphql" />
+    <None Remove="Queries\Fragments\TemplateFields.graphql" />
+    <None Remove="Queries\IntrospectionQuery.graphql" />
+    <None Remove="Queries\IshTopicById.graphql" />
+    <None Remove="Queries\IshTopicByUrl.graphql" />
+    <None Remove="Queries\IshTopics.graphql" />
+    <None Remove="Queries\ItemQuery.graphql" />
+    <None Remove="Queries\PageByCmUri.graphql" />
+    <None Remove="Queries\PageById.graphql" />
+    <None Remove="Queries\PageByUrl.graphql" />
+    <None Remove="Queries\PageModelById.graphql" />
+    <None Remove="Queries\PageModelByUrl.graphql" />
+    <None Remove="Queries\PagesByUrl.graphql" />
+    <None Remove="Queries\Publication.graphql" />
+    <None Remove="Queries\PublicationMapping.graphql" />
+    <None Remove="Queries\Publications.graphql" />
+    <None Remove="Queries\ResolveBinaryLink.graphql" />
+    <None Remove="Queries\ResolveComponentLink.graphql" />
+    <None Remove="Queries\ResolveDynamicComponentLink.graphql" />
+    <None Remove="Queries\ResolvePageLink.graphql" />
+    <None Remove="Queries\SearchByRawCriteria.graphql" />
+    <None Remove="Queries\Sitemap.graphql" />
+    <None Remove="Queries\SitemapSubtree.graphql" />
+    <None Remove="Queries\SitemapSubtreeNoRecurse.graphql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Queries\BinaryComponentByCmUri.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\BinaryComponentById.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\BinaryComponentByUrl.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ComponentPresentation.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ComponentPresentations.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\EntityModelById.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ExternalItemQuery.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\IntrospectionQuery.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\IshTopics.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ItemQuery.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PageByCmUri.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\IshTopicByUrl.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\IshTopicById.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PageById.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PageByUrl.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PageModelById.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PageModelByUrl.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PagesByUrl.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\Publication.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\PublicationMapping.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\Publications.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ResolveBinaryLink.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ResolveComponentLink.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ResolveDynamicComponentLink.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\ResolvePageLink.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\SearchByRawCriteria.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\Sitemap.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\SitemapSubtree.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\SitemapSubtreeNoRecurse.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Queries\Fragments\BinaryComponentFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\CategoryFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\ComponentFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\ComponentPresentationFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\ComponentTemplateFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\CustomMetaFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\CustomMetaFieldsFilter.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\ItemFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\KeywordFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\PageFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\PageItemFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\PageTemplateFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\PublicationFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\PublicationMappingFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\RecurseItems.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\StructureGroupFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\TaxonomyItemFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\TaxonomyPageFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\TemplateFields.graphql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rws-logo-128.png" Pack="true" PackagePath="images\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../../README.md" Pack="true" PackagePath="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

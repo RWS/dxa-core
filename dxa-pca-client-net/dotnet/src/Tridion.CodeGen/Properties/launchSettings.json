@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Tridion.CodeGen": {
+      "commandName": "Project"
+    }
+  }
+}

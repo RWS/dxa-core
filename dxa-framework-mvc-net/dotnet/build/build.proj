@@ -1,0 +1,83 @@
+<Project>
+
+  <Import Project="../Directory.Build.props" />
+
+  <Target Name="Build">
+    <Message Text="Building $(ProjectName)" />
+    <CallTarget Targets="RemoveLocalNuGetPackages" />
+    <CallTarget Targets="BuildSolution" />
+    <CallTarget Targets="GenerateLocalNuGetPackages" />
+  </Target>
+
+  <PropertyGroup>
+    <LocalNugetStorage>../build/LocalNugetStorage</LocalNugetStorage>
+    <LocalNugetStorageForProjects>../../build/LocalNugetStorage</LocalNugetStorageForProjects>
+    <NuGetGlobalPackagesFolder>$(HOME)/.nuget/packages/</NuGetGlobalPackagesFolder>
+    <NuGetGlobalPackagesFolder Condition=" '$(USERPROFILE)' != '' ">$(USERPROFILE)/.nuget/packages/</NuGetGlobalPackagesFolder>
+    <BuildConfiguration Condition="'$(BuildConfiguration)' == ''">Debug</BuildConfiguration>
+    <NuGetPackagesSourceUrl>https://nexus.sdl.com/service/local/nuget/releases_dotnet/</NuGetPackagesSourceUrl>
+    <NuGetPackagesSourceApiKey>fed9a610-8898-3986-877e-1001ba1f858d</NuGetPackagesSourceApiKey>
+    <FullVersion>$(VersionPrefix)-$(VersionSuffix)</FullVersion>
+  </PropertyGroup>
+
+  <!-- ============================================================================================================ -->
+
+  <Target Name="RemoveLocalNuGetPackages">
+    <Message Text="Remove local NuGet packages" />
+    
+    <ItemGroup>
+      <GlobalPackages Include="$(NuGetGlobalPackagesFolder)Tridion.Dxa.Framework" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" Exists('$(LocalNugetStorage)') ">
+      <LocalPackages Include="$(LocalNugetStorage)/Tridion.Dxa.Framework.$(VersionPrefix)-a-local-123456789012.nupkg" />      
+    </ItemGroup>
+
+    <RemoveDir Directories="@(GlobalPackages)" />
+    <Delete Files="@(LocalPackages)" />
+
+  </Target>
+
+  <!-- ============================================================================================================ -->
+
+  <Target Name="BuildSolution">
+    <MSBuild Projects="..\Tridion.Dxa.Framework.sln" Targets="Restore;Build" Properties="Configuration=$(BuildConfiguration)" BuildInParallel="False" StopOnFirstFailure="True" ContinueOnError="False" />
+  </Target>
+
+  <!-- ============================================================================================================ -->
+
+  <Target Name="GenerateLocalNuGetPackages">
+    <Exec Command="dotnet pack ../Tridion.Dxa.Framework.sln --configuration $(BuildConfiguration) --no-build --output $(LocalNugetStorageForProjects)" />
+  </Target>
+
+  <!-- ============================================================================================================ -->
+
+  <Target Name="SignPackAndPushNuGetPackages">
+    <!-- Should only be called from the build server -->
+    <PropertyGroup>
+      <VersionSuffix>beta-$([System.DateTime]::Now.ToString('yyyyMMddHHmmss'))</VersionSuffix>
+    </PropertyGroup>
+
+   <ItemGroup>
+      <PackagestoPush Include="../src/Tridion.Dxa.Framework/bin/$(BuildConfiguration)/Tridion.Dxa.Framework.$(PackageVersionPrefix)-$(VersionSuffix).nupkg" />
+    </ItemGroup>
+
+    <CallTarget Targets="SignAssemblies" />
+
+    <Exec Command="dotnet pack ../Tridion.Dxa.Framework.sln --configuration $(BuildConfiguration) --no-build --version-suffix $(VersionSuffix)" />
+    <Exec Command="dotnet nuget push %(PackagestoPush.Identity) --api-key $(NuGetPackagesSourceApiKey) --source $(NuGetPackagesSourceUrl)" />
+  </Target>
+
+  <!-- ============================================================================================================ -->
+
+  <Target Name="SignAssemblies">
+    <Message Text="Signing assemblies" />
+   
+    <ItemGroup>
+      <AssemblyiesToSign Include="../src/Tridion.Dxa.Framework/bin/$(BuildConfiguration)/net8.0/Tridion.Dxa.Framework.dll" />
+    </ItemGroup>
+
+    <Exec Command="powershell -NonInteractive -executionpolicy Unrestricted -command &quot;&amp; { ..\tools\SignAssemblies.ps1 -assemblies &quot;%(AssemblyiesToSign.FullPath)&quot; }&quot;"/>
+  </Target>
+
+</Project>

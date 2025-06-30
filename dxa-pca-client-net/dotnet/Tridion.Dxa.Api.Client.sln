@@ -1,0 +1,25 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tridion.Dxa.Api.Client", "src\Tridion.Dxa.Api.Client\Tridion.Dxa.Api.Client.csproj", "{804C7AFC-FB64-4C2B-BDBC-5FC804DDE59D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{804C7AFC-FB64-4C2B-BDBC-5FC804DDE59D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{804C7AFC-FB64-4C2B-BDBC-5FC804DDE59D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{804C7AFC-FB64-4C2B-BDBC-5FC804DDE59D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{804C7AFC-FB64-4C2B-BDBC-5FC804DDE59D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {67F46EB8-D34D-4375-B0C9-589C444C3202}
+	EndGlobalSection
+EndGlobal

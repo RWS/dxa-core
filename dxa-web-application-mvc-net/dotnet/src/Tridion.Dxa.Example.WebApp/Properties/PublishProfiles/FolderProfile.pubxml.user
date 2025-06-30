@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>C:\Workspace\Tryout\.NETCore8.0\dxa-web-application-mvc-net-sites\dotnet\src\Tridion.Dxa.Example.WebApp\bin\Release\net8.0\publish\</_PublishTargetUrl>
+    <History>True|2024-08-20T20:17:16.7316030Z||;True|2024-08-20T22:09:17.3475797+02:00||;True|2024-08-20T21:37:55.2629476+02:00||;False|2024-08-20T21:27:39.1392136+02:00||;False|2024-08-20T17:38:36.4859302+02:00||;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

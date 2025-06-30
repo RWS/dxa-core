@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Shared\SigningServerTridionPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>
+	  <PackageId>Tridion.Dxa.Module.DynamicDocumentation</PackageId>
+    <Authors>RWS Group</Authors>
+    <Company>RWS</Company>
+    <Product>Tridion.Dxa.Module.DynamicDocumentation</Product>
+    <Description>RWS Digital eXperience Accelerator Framework for Tridion Sites.</Description>
+    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rws/dxa-module-dynamicdocumentation-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rws/dxa-module-dynamicdocumentation-net</RepositoryUrl>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <PackageIcon>images/rws-logo-128.png</PackageIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.14" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20250510095911" />
+  </ItemGroup>
+
+  <!-- Explicitly include views as embedded resources -->
+  <ItemGroup>
+    <EmbeddedResource Include="Areas\**\*.cshtml" />
+    <EmbeddedResource Include="Views\**\*.cshtml" />
+  </ItemGroup>
+
+  <!-- For NuGet packaging - include as content files -->
+  <ItemGroup>
+    <Content Include="Areas\**\*.cshtml" Pack="true" PackagePath="contentFiles\any\any" />
+    <Content Include="Views\**\*.cshtml" Pack="true" PackagePath="contentFiles\any\any" />
+  </ItemGroup>
+
+  <!-- Remove any duplicate Content/None items if present -->
+  <ItemGroup>
+    <Content Remove="Areas\**\*.cshtml" />
+    <Content Remove="Views\**\*.cshtml" />
+    <None Remove="Areas\**\*.cshtml" />
+    <None Remove="Views\**\*.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rws-logo-128.png" Pack="true" PackagePath="images\" />
+  </ItemGroup>
+</Project>

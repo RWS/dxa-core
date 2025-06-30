@@ -1,0 +1,87 @@
+﻿@model SitemapItem
+@using System.Linq
+@using Microsoft.AspNetCore.Html
+
+@{
+    // Small screens show 2 columns; adjust row divs accordingly
+    int cols = (WebRequestContext.Current.ScreenWidth == ScreenWidth.Small) ? 2 : 3;
+
+    // Filter items with child items
+    var items = Model.Items.Where(i => i.Items.Count > 0).ToList();
+
+    if (Model.Type == "StructureGroup")
+    {
+        // Create a "Home" SitemapItem
+        var home = new SitemapItem
+                {
+                    Title = Model.Title,
+                    Url = Model.Url,
+                    Items = new List<SitemapItem>()
+                };
+
+        // Add items from the root Structure Group
+        foreach (var item in Model.Items)
+        {
+            if (item.Items.Count == 0)
+            {
+                home.Items.Add(item);
+            }
+        }
+        items.Insert(0, home);
+    }
+}
+<div>
+    @for (int i = 0; i < Math.Ceiling(items.Count / Convert.ToDouble(cols)); i++)
+    {
+        <div class="row">
+            @for (int j = 0; j < cols && (cols * i + j < items.Count); j++)
+            {
+                var item = items[cols * i + j];
+                <div class="col-sm-6 col-md-4">
+                    <h2>@RenderLink(item)</h2>
+                    <ul class="list-unstyled">
+                        @foreach (var childItem in item.Items)
+                        {
+                            @RenderList(childItem)
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@functions {
+    private IHtmlContent RenderLink(SitemapItem item)
+    {
+        if (string.IsNullOrEmpty(item.Url))
+        {
+            return new HtmlString(item.Title);
+        }
+
+        return new HtmlString($"<a href=\"{item.Url}\" title=\"{item.Title}\">{item.Title}</a>");
+    }
+
+    private IHtmlContent RenderList(SitemapItem item)
+    {
+        if (item.Url != null && item.Url.EndsWith("/index"))
+        {
+            // Suppress Index Page
+            return HtmlString.Empty;
+        }
+
+        var content = $"<li>{RenderLink(item)}";
+        if (item.Items.Count > 0)
+        {
+            content += "<ul class=\"list-unstyled\">";
+            foreach (var child in item.Items)
+            {
+                content += RenderList(child).ToString();
+            }
+            content += "</ul>";
+        }
+        content += "</li>";
+
+        return new HtmlString(content);
+    }
+}

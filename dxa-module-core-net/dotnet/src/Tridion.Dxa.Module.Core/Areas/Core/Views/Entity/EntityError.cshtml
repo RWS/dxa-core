@@ -1,0 +1,12 @@
+﻿@model ExceptionEntity
+@inject Microsoft.Extensions.Localization.IStringLocalizer<TridionStringLocalizer> Localizer
+<div class="alert alert-danger">
+    <strong>@Html.Resource(Localizer,"core.sectionErrorMessage")</strong>
+    @if (WebRequestContext.Current.IsDeveloperMode)
+    {
+        foreach (string errorMessage in Model.ErrorMessages)
+        {
+            <pre>@errorMessage</pre>
+        }
+    }
+</div>

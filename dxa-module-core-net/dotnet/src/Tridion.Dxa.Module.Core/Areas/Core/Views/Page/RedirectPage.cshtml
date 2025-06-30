@@ -1,0 +1,30 @@
+﻿@using Microsoft.AspNetCore.Http
+@model PageModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<TridionStringLocalizer> Localizer
+@{
+    string edit = Context.Request.Query["edit"];
+    var redirectUrl = Model.Meta.ContainsKey("externalLink") ? Model.Meta["externalLink"] : (Model.Meta.ContainsKey("internalLink") ? Model.Meta["internalLink"] : null);
+
+    if (edit == null && !string.IsNullOrEmpty(redirectUrl))
+    {
+        // Ensure no content has been written yet
+        if (!Context.Response.HasStarted)
+        {
+            Context.Response.Redirect(redirectUrl);
+            Context.Response.StatusCode = StatusCodes.Status302Found;
+            Context.Response.Headers.Location = redirectUrl;
+            await Context.Response.CompleteAsync();
+            return;
+        }
+        else
+        {
+            // Fallback to client-side redirect if headers were committed
+            <script>window.location.replace('@redirectUrl');</script>
+            return;
+        }
+    }
+    else
+    {
+        <strong>@Html.Resource(Localizer,"core.redirectEditorHintText"): @redirectUrl</strong>
+    }
+}

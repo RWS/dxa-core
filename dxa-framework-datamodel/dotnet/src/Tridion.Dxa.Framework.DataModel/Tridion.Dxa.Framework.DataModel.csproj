@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Shared\SigningServerTridionPublicKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>True</DelaySign>
+    <PackageId>Tridion.Dxa.Framework.DataModel</PackageId>
+    <Authors>RWS Group</Authors>
+    <Company>RWS</Company>
+    <Product>Tridion.Dxa.Framework.DataModel</Product>
+    <Description>RWS Digital eXperience Accelerator Framework for Tridion Sites.</Description>
+    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/rws/dxa-framework-datamodel</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rws/dxa-framework-datamodel</RepositoryUrl>
+    <PackageIcon>images/rws-logo-128.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="rws-logo-128.png" Pack="true" PackagePath="images\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../../README.md" Pack="true" PackagePath="README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>

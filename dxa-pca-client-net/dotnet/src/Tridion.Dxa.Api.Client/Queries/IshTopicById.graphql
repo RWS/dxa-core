@@ -1,0 +1,41 @@
+﻿query topic($publicationId: Int!, $pageId: Int!) {
+	ishTopic(publicationId: $publicationId, itemId: $pageId) {
+        ...ItemFields        
+        abstract {
+          xhtml
+          links {
+            cmUri
+            title
+            type
+            uri
+          }
+        }
+        relatedLinks {
+          links {
+            cmUri
+            title
+            type
+            uri
+          }
+        }
+		...on IshConceptTopic {
+		  body {
+			xhtml
+			sections {
+			  type
+			  xhtml
+			}
+		  }		  
+		}  
+		...on IshGenericTopic {
+		  body {
+			xhtml
+			sections {
+			  type
+			  xhtml
+			}
+		  }
+		}       
+
+	}
+}
