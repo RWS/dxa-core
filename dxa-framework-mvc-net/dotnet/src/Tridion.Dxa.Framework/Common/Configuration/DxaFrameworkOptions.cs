@@ -54,6 +54,7 @@ namespace Tridion.Dxa.Framework
         public string SitemapDefaultDescendantDepth { get; set; }
         public List<ModelBuilderPipelineConfig> ModelBuilderPipelineConfig { get; set; }
         public List<string> IgnoredPaths { get; set; } = new List<string>();
-
+        public bool PreferOriginHeaderForLocalizationResolver { get; set; } = false;
+        public string HealthCheckPath { get; set; }
     }
 }

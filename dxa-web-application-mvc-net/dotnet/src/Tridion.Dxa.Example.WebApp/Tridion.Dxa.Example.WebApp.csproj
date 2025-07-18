@@ -9,7 +9,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" />
     <PackageReference Include="NLog.Extensions.Logging" Version="5.4.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="5.4.0" />
-    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20250511161443" />
-    <PackageReference Include="Tridion.Dxa.Module.Core" Version="2.4.0-beta-20250511162044" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20250701213500" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\dxa-module-core-net\dotnet\src\Tridion.Dxa.Module.Core\Tridion.Dxa.Module.Core.csproj" />
   </ItemGroup>
 </Project>

@@ -41,7 +41,7 @@ namespace Tridion.Dxa.Example.WebApp
                 hostBuilder = CreateHostBuilder(args);
                 using IHost host = hostBuilder.Build();
 
-                // Initialize the DXA static logger here:
+                // Initialize the DXA logger here:
                 var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
                 Log.Logger = new DefaultLogger(loggerFactory);
 
@@ -104,8 +104,8 @@ namespace Tridion.Dxa.Example.WebApp
 
 
             // Set the NLog minimum level from appsettings.json
-            string logLevel = configuration.GetSection("Logging:LogLevel:Default").Value ?? "Error";
-            var nlogConfig = new NLogLoggingConfiguration(configuration.GetSection("Logging"));
+            var logLevel = configuration.GetSection("Logging:LogLevel:Default").Value ?? "Error";
+            var nlogConfig = new NLog.Extensions.Logging.NLogLoggingConfiguration(configuration.GetSection("Logging"));
 
             NLogAspNetCoreOptions nlogOptions = new()
             {

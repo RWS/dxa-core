@@ -20,7 +20,8 @@ namespace Tridion.Dxa.Framework
         private readonly RequestDelegate _next;
         private readonly ILogger<DxaMiddleware> _logger;
         private readonly List<string> _ignoredPaths;
-
+        private readonly bool _preferOriginHeaderForLocalizationResolver;
+        private readonly string _healthCheckPath;
         public DxaMiddleware(
             RequestDelegate next,
             ILogger<DxaMiddleware> logger,
@@ -29,6 +30,8 @@ namespace Tridion.Dxa.Framework
             _next = next;
             _logger = logger;
             _ignoredPaths = options.Value?.IgnoredPaths ?? new List<string>();
+            _preferOriginHeaderForLocalizationResolver = options.Value?.PreferOriginHeaderForLocalizationResolver ?? false;
+            _healthCheckPath = options.Value?.HealthCheckPath ?? "/system/health";
         }
 
 
@@ -105,16 +108,39 @@ namespace Tridion.Dxa.Framework
         private bool IsHealthCheckPath(string path)
         {
             return !string.IsNullOrEmpty(path) &&
-                   path.EndsWith("/system/health", StringComparison.OrdinalIgnoreCase);
+                   path.EndsWith(_healthCheckPath, StringComparison.OrdinalIgnoreCase);
         }
 
         private async Task<Localization> ResolveLocalizationAsync(HttpContext context,
-            ILocalizationResolver localizationResolver, WebRequestContext webRequestContext)
+        ILocalizationResolver localizationResolver, WebRequestContext webRequestContext)
         {
             try
             {
-                return webRequestContext.Localization ??
-                       localizationResolver.ResolveLocalization(new Uri(context.Request.GetDisplayUrl()));
+                // First check if we already have localization (e.g., from previous middleware)
+                if (webRequestContext.Localization != null)
+                    return webRequestContext.Localization;
+
+                Uri localizationUri;
+
+                if (_preferOriginHeaderForLocalizationResolver && context.Request.Headers.TryGetValue("Origin", out var origin) && !string.IsNullOrWhiteSpace(origin))
+                {
+                    // Get domain from Origin header
+                    var originUri = new Uri(origin.ToString().TrimEnd('/'));
+                    var domain = originUri.GetLeftPart(UriPartial.Authority); // Gets "https://domain.com"
+
+                    // Get full path from request (including localization if present)
+                    var requestPath = context.Request.Path.Value;
+
+                    // Combine Origin domain with request path
+                    localizationUri = new Uri($"{domain}{requestPath}");
+                }
+                else
+                {
+                    // Fall back to full request URL
+                    localizationUri = new Uri(context.Request.GetDisplayUrl());
+                }
+
+                return localizationResolver.ResolveLocalization(localizationUri);
             }
             catch (DxaUnknownLocalizationException ex)
             {

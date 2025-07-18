@@ -30,6 +30,7 @@ using Tridion.Dxa.Framework.ADF;
 using Tridion.Dxa.Framework.Mvc.Configuration;
 using Tridion.Dxa.Framework.Mvc.OutputCache;
 using Tridion.Dxa.Framework.Tridion.Extensions;
+using StackExchange.Redis;
 
 namespace Tridion.Dxa.Example.WebApp
 {
