@@ -1,22 +1,22 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting.WindowsServices;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using NLog;
 using NLog.Web;
 using NLog.Extensions.Logging;
 using Sdl.Web.Common.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
+using System;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
+using System.Threading;
 
 namespace Tridion.Dxa.Example.WebApp
 {
@@ -29,7 +29,8 @@ namespace Tridion.Dxa.Example.WebApp
             bool terminateProcess = false;
 
             Logger logger = LogManager.Setup()
-                .LoadConfigurationFromFile() // We could use .LoadConfigurationFromAppSettings and move nlog.config stuff into appsettings.json
+                //.LoadConfigurationFromFile() // We could use .LoadConfigurationFromAppSettings and move nlog.config stuff into appsettings.json
+                .LoadConfigurationFromAppSettings()
                 .GetCurrentClassLogger();
 
             logger.Info("ServiceStarting");
@@ -41,8 +42,8 @@ namespace Tridion.Dxa.Example.WebApp
                 hostBuilder = CreateHostBuilder(args);
                 using IHost host = hostBuilder.Build();
 
-                // Initialize the DXA logger here:
-                var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+                // Initialize the DXA static logger here:
+                ILoggerFactory loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
                 Log.Logger = new DefaultLogger(loggerFactory);
 
                 Log.Info("Static logger initialized");
@@ -53,6 +54,7 @@ namespace Tridion.Dxa.Example.WebApp
             {
                 terminateProcess = true;
                 string errorMessage = ex.Message;
+
                 if (ex is SocketException socketException)
                 {
                     //https://support.microsoft.com/en-us/help/3039044/error-10013-wsaeacces-is-returned-when-a-second-bind-to-a-excluded-por
@@ -73,7 +75,7 @@ namespace Tridion.Dxa.Example.WebApp
                     if (stopDelay > TimeSpan.Zero)
                     {
                         logger.Info($"ServiceStopDelay{0}, (int)stopDelay.TotalSeconds");
-                        System.Threading.Thread.Sleep((int)stopDelay.TotalMilliseconds);
+                        Thread.Sleep((int)stopDelay.TotalMilliseconds);
                     }
                 }
             }
@@ -102,11 +104,6 @@ namespace Tridion.Dxa.Example.WebApp
                 .AddCommandLine(args)
                 .Build();
 
-
-            // Set the NLog minimum level from appsettings.json
-            var logLevel = configuration.GetSection("Logging:LogLevel:Default").Value ?? "Error";
-            var nlogConfig = new NLog.Extensions.Logging.NLogLoggingConfiguration(configuration.GetSection("Logging"));
-
             NLogAspNetCoreOptions nlogOptions = new()
             {
                 RemoveLoggerFactoryFilter = false,
@@ -117,6 +114,16 @@ namespace Tridion.Dxa.Example.WebApp
                 .UseConsoleLifetime()
                 .UseWindowsService(options => options.ServiceName = "TridionDxaWebApp")
                 .UseSystemd()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    IHostEnvironment env = hostingContext.HostingEnvironment;
+
+                    config.SetBasePath(Directory.GetCurrentDirectory());
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                    config.AddCommandLine(args);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
@@ -125,8 +132,8 @@ namespace Tridion.Dxa.Example.WebApp
                         {
                             logging.ClearProviders();
                             logging.AddConfiguration(context.Configuration.GetSection("Logging"));
-                            logging.AddNLog();
-                            //logging.SetMinimumLevel(Enum.Parse<Microsoft.Extensions.Logging.LogLevel>(logLevel));  // Set minimum level
+                            logging.AddNLog(nlogOptions);
+
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                             {
                                 logging.AddEventLog(opt =>
