@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.IO;
-using System.Linq;
+﻿using System.IO.Compression;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml;
-using Tridion.Dxa.Framework.Core.JSON.NET;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Sdl.Web.Common.Interfaces;
 using Sdl.Web.Common.Logging;
-
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Tridion.Dxa.Framework.Core.JSON.NET;
+using System.IO;
 
 namespace Sdl.Web.Tridion.Caching
 {
@@ -25,8 +24,9 @@ namespace Sdl.Web.Tridion.Caching
         //private readonly ICacheProvider _cacheProvider;
         private readonly IMemoryCache _memoryCache;
         private readonly IDistributedCache _distributedCache;
-        private IConfiguration _configuration;
-        private static readonly long DefaultSlidingExpirationTimeLegacy = (long)TimeSpan.FromMinutes(5).TotalSeconds;
+        private readonly IConfiguration _configuration;
+        private static readonly long _defaultSlidingExpirationTimeLegacy = (long)TimeSpan.FromMinutes(5).TotalSeconds;
+        private readonly int _compressionTriggerByteSize = 100 * 1024;
 
         public DefaultCacheProvider(IMemoryCache memoryCache, IDistributedCache distributedCache, IConfiguration configuration)
         {
@@ -207,7 +207,7 @@ namespace Sdl.Web.Tridion.Caching
                 long t = regionCacheHandlerPolicy.GetValue<long>("SlidingExpiration");
 
                 if (t == -1)
-                    t = DefaultSlidingExpirationTimeLegacy;
+                    t = _defaultSlidingExpirationTimeLegacy;
 
                 slidingExpiration = TimeSpan.FromSeconds(t);
                 distributedCacheoptions.SlidingExpiration = slidingExpiration;
@@ -226,7 +226,6 @@ namespace Sdl.Web.Tridion.Caching
 
             string format = DetermineFormat<T>();
             var serializedValue = SerializeData<T>(value, format, true);
-            //var serializedValue = SerializeCacheData<T>(value);
             _distributedCache.SetString(key, serializedValue, distributedCacheoptions);
         }
 
@@ -246,7 +245,7 @@ namespace Sdl.Web.Tridion.Caching
                 long t = regionCacheHandlerPolicy.GetValue<long>("SlidingExpiration");
 
                 if (t == -1)
-                    t = DefaultSlidingExpirationTimeLegacy;
+                    t = _defaultSlidingExpirationTimeLegacy;
 
                 slidingExpiration = TimeSpan.FromSeconds(t);
                 cacheEntryOptions.SlidingExpiration = slidingExpiration;
@@ -259,8 +258,8 @@ namespace Sdl.Web.Tridion.Caching
 
                 absoluteExpiration = TimeSpan.FromSeconds(t);
 
-                DateTimeOffset? AbsoluteExpirationFromNow = absoluteExpiration.HasValue ? new DateTimeOffset(DateTime.UtcNow.AddSeconds(absoluteExpiration.Value.TotalSeconds)) : new DateTimeOffset(DateTime.UtcNow.AddSeconds(300));
-                cacheEntryOptions.AbsoluteExpiration = AbsoluteExpirationFromNow;
+                DateTimeOffset? absoluteExpirationFromNow = absoluteExpiration.HasValue ? new DateTimeOffset(DateTime.UtcNow.AddSeconds(absoluteExpiration.Value.TotalSeconds)) : new DateTimeOffset(DateTime.UtcNow.AddSeconds(300));
+                cacheEntryOptions.AbsoluteExpiration = absoluteExpirationFromNow;
             }
 
             _memoryCache.Set(key, value, cacheEntryOptions);
@@ -279,11 +278,6 @@ namespace Sdl.Web.Tridion.Caching
             value = default;
             return false;
         }
-        #region Retry
-
-
-
-        #endregion
 
         private string SerializeData<T>(T value, string format, bool enableCompression)
         {
@@ -320,6 +314,9 @@ namespace Sdl.Web.Tridion.Caching
 
         private string HandleCompression<T>(string serializedData)
         {
+            if (!IsCompressionRequired(serializedData))
+              return $"RAW|{DetermineFormat<T>()}|{Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedData))}";
+
             var compressedBytes = CompressData(Encoding.UTF8.GetBytes(serializedData));
             return $"COMPRESSED|{DetermineFormat<T>()}|{Convert.ToBase64String(compressedBytes)}";
         }
@@ -368,6 +365,11 @@ namespace Sdl.Web.Tridion.Caching
                 var decompressedBytes = DecompressData(compressedBytes);
                 serializedData = Encoding.UTF8.GetString(decompressedBytes);
             }
+            else
+            {
+                var uncompressedBytes = Convert.FromBase64String(serializedData);
+                serializedData = Encoding.UTF8.GetString(uncompressedBytes);
+            }
 
             // Deserialize based on the format
             return format.ToLower() switch
@@ -380,15 +382,31 @@ namespace Sdl.Web.Tridion.Caching
         private T DeserializeFromXml<T>(string xmlData)
         {
             var xmlSerializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
-            using (var stringReader = new StringReader(xmlData))
+
+            // Configure secure XML reader settings
+            var settings = new XmlReaderSettings
             {
-                return (T)xmlSerializer.Deserialize(stringReader);
+                DtdProcessing = DtdProcessing.Prohibit, // Disable DTD processing
+                XmlResolver = null,                     // Disable external references
+                MaxCharactersFromEntities = 1024,       // Limit entity expansion
+            };
+
+            using (var stringReader = new StringReader(xmlData))
+            using (var xmlReader = XmlReader.Create(stringReader, settings))
+            {
+                return (T)xmlSerializer.Deserialize(xmlReader);
             }
+        }
+
+        private bool IsCompressionRequired(string data)
+        {
+            var a = Encoding.UTF8.GetByteCount(data);
+            return a >= _compressionTriggerByteSize;
         }
 
         private byte[] CompressData(byte[] data)
         {
-            if (data == null) return null;
+            if (data is null) return data;
 
             using var outputStream = new MemoryStream();
             using (var compressionStream = new GZipStream(outputStream, CompressionLevel.Optimal))
@@ -401,7 +419,7 @@ namespace Sdl.Web.Tridion.Caching
 
         private byte[] DecompressData(byte[] compressedData)
         {
-            if (compressedData == null) return null;
+            if (compressedData is null) return compressedData;
 
             using var inputStream = new MemoryStream(compressedData);
             using var outputStream = new MemoryStream();

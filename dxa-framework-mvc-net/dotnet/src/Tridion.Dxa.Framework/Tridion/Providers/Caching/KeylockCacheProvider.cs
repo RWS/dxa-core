@@ -11,7 +11,7 @@ namespace Sdl.Web.Tridion.Caching
     /// </summary>
     public class KeylockCacheProvider : ICacheProvider
     {
-        private static readonly ConcurrentDictionary<string, object> KeyLocks = new ConcurrentDictionary<string, object>();
+        private static readonly ConcurrentDictionary<string, object> _keyLocks = new ConcurrentDictionary<string, object>();
         private readonly ICacheProvider _underlyingCacheProvider;
 
         [ThreadStatic]
@@ -25,7 +25,7 @@ namespace Sdl.Web.Tridion.Caching
         public void Store<T>(string key, string region, T value, IEnumerable<string> dependencies = null)
         {
             var hash = CalcLockHash(key, region);
-            lock (KeyLocks.GetOrAdd(hash, _ => new object()))
+            lock (_keyLocks.GetOrAdd(hash, _ => new object()))
             {
                 try
                 {
@@ -33,7 +33,7 @@ namespace Sdl.Web.Tridion.Caching
                 }
                 finally
                 {
-                    KeyLocks.TryRemove(hash, out _);
+                    _keyLocks.TryRemove(hash, out _);
                 }
             }
         }
@@ -47,7 +47,7 @@ namespace Sdl.Web.Tridion.Caching
                 return cachedValue;
 
             var hash = CalcLockHash(key, region);
-            var lockObject = KeyLocks.GetOrAdd(hash, _ => new object());
+            var lockObject = _keyLocks.GetOrAdd(hash, _ => new object());
 
             lock (lockObject)
             {
@@ -68,7 +68,7 @@ namespace Sdl.Web.Tridion.Caching
                 finally
                 {
                     Interlocked.Decrement(ref _reentriesCount);
-                    KeyLocks.TryRemove(hash, out _);
+                    _keyLocks.TryRemove(hash, out _);
                 }
             }
         }
