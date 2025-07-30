@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Sdl.Web.Common.Interfaces
 {
@@ -41,5 +42,16 @@ namespace Sdl.Web.Common.Interfaces
         /// </remarks>
         /// <returns>The cached value.</returns>
         T GetOrAdd<T>(string key, string region, Func<T> addFunction, IEnumerable<string> dependencies = null);
+
+        /// <summary>
+        /// GetOrAddAsync
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="region"></param>
+        /// <param name="addFunction"></param>
+        /// <param name="dependencies"></param>
+        /// <returns></returns>
+        Task<T> GetOrAddAsync<T>(string key, string region, Func<Task<T>> addFunction, IEnumerable<string> dependencies = null);
     }
 }

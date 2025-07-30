@@ -367,25 +367,43 @@ namespace Sdl.Web.Tridion.Mapping
         {
             using (new Tracer(urlPath, localization))
             {
+                if (localization == null)
+                {
+                    throw new ArgumentNullException(nameof(localization), "Localization cannot be null.");
+                }
+
                 if (!urlPath.EndsWith(Constants.DefaultExtension) && !urlPath.EndsWith(".json"))
                 {
                     urlPath += Constants.DefaultExtension;
                 }
 
-                var client = _apiClientFactory.CreateClient();
+                var client = _apiClientFactory?.CreateClient();
+                if (client == null)
+                {
+                    throw new DxaException("API client could not be created.");
+                }
+
                 // Important: The content we are getting back is not model based so we need to inform
                 // the PCA so it doesn't attempt to treat it as a R2/DD4T model and attempt conversion
                 // since this will fail and we'll end up with no content being returned.
+
                 client.DefaultContentType = ContentType.RAW;
+
                 try
                 {
                     var page = client.GetPage(localization.Namespace(),
                         localization.PublicationId(), urlPath, null, ContentIncludeMode.IncludeDataAndRender, null);
+
+                    if (page?.RawContent?.Data == null)
+                    {
+                        throw new DxaException($"Page URL path '{urlPath}' in Publication '{localization.Id}' returned no usable content.");
+                    }
+
                     return JsonConvert.SerializeObject(page.RawContent.Data);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    throw new DxaException($"Page URL path '{urlPath}' in Publication '{localization.Id}' returned no data.");
+                    throw new DxaException($"Failed to get page content for '{urlPath}' in Publication '{localization.Id}': {ex.Message}", ex);
                 }
             }
         }

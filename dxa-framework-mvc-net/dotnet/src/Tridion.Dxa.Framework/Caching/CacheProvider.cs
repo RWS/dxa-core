@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Tridion.Dxa.Framework.Caching
 {
@@ -102,6 +103,81 @@ namespace Tridion.Dxa.Framework.Caching
                 Interlocked.Decrement(ref _reentriesCount);
             }
         }
+
+        public async Task<T> GetOrAddAsync<T>(string key, string region, Func<Task<T>> addFunction, IEnumerable<string> dependencies = null)
+        {
+            // Guard against re-entrant caching calls
+            if (_reentries == null) _reentries = new HashSet<uint>();
+            var hashKey = CalcHash(key, region);
+            if (_reentries.Contains(hashKey))
+            {
+                return await addFunction();
+            }
+
+            try
+            {
+                Interlocked.Increment(ref _reentriesCount);
+                _reentries.Add(hashKey);
+
+                // First try to get from cache
+                if (TryGetCachedValue(key, region, out T cachedValue))
+                {
+                    return cachedValue;
+                }
+
+                var hash = CalcSlotIndex(key, region);
+                var threadId = Thread.CurrentThread.ManagedThreadId;
+                var usedBy = Interlocked.CompareExchange(ref _slots[hash], threadId, 0);
+
+                // If empty slot or used by current thread, we can create the cache value
+                if (usedBy == 0 || usedBy == threadId)
+                {
+                    return await CreateCacheValueAsync(hash, key, region, addFunction, dependencies);
+                }
+
+                // Slot in use - spin wait
+                var t = TimeOut.GetTime();
+                while (Interlocked.CompareExchange(ref _slots[hash], threadId, 0) != 0)
+                {
+                    if (TryGetCachedValue(key, region, out cachedValue)) return cachedValue;
+                    if (TimeOut.UpdateTimeOut(t, WriteTimeout) <= 0) break;
+                }
+
+                return _slots[hash] == threadId
+                    ? await CreateCacheValueAsync(hash, key, region, addFunction, dependencies)
+                    : await addFunction();
+            }
+            finally
+            {
+                _reentries.Remove(hashKey);
+                Interlocked.Decrement(ref _reentriesCount);
+            }
+        }
+
+        private async Task<T> CreateCacheValueAsync<T>(uint hash, string key, string region,
+            Func<Task<T>> addFunction, IEnumerable<string> dependencies)
+        {
+            try
+            {
+                // Double-check cache after acquiring slot
+                if (TryGetCachedValue(key, region, out T cachedValue))
+                {
+                    return cachedValue;
+                }
+
+                // Execute the async function
+                var value = await addFunction();
+
+                // Store the result
+                Store(key, region, value, dependencies);
+                return value;
+            }
+            finally
+            {
+                Interlocked.CompareExchange(ref _slots[hash], 0, Thread.CurrentThread.ManagedThreadId);
+            }
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool TryGetCachedValue<T>(string key, string region, out T value)

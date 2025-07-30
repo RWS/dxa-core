@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Tridion.Dxa.Framework.Core.JSON.NET;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Sdl.Web.Tridion.Caching
 {
@@ -163,6 +164,43 @@ namespace Sdl.Web.Tridion.Caching
             return item;
         }
 
+        public async Task<T> GetOrAddAsync<T>(string key, string region, Func<Task<T>> addFunction, IEnumerable<string> dependencies = null)
+        {
+            if (!IsCachingEnabled())
+            {
+                return await addFunction();
+            }
+
+            string cacheHandlerType = GetCacheHandler(region);
+
+            // Try to get from cache first
+            if (cacheHandlerType == "RedisCacheHandler" && TryGetFromRedis(key, out T cachedItem))
+            {
+                return cachedItem;
+            }
+            else if (cacheHandlerType == "DefaultMemCacheHandler" && _memoryCache.TryGetValue(key, out cachedItem))
+            {
+                return cachedItem;
+            }
+
+            // Cache miss - execute the async function
+            T item = await addFunction();
+
+            if (item != null)
+            {
+                if (cacheHandlerType == "RedisCacheHandler")
+                {
+                    StoreInRedis(key, region, item);
+                }
+                else if (cacheHandlerType == "DefaultMemCacheHandler")
+                {
+                    StoreInMemory(key, item, region);
+                }
+            }
+
+            return item;
+        }
+
         private string GetCacheHandler(string region)
         {
             var regionsSection = _configuration.GetSection("SdlWebDelivery:Caching:Regions");
@@ -283,20 +321,18 @@ namespace Sdl.Web.Tridion.Caching
         {
             if (value == null) return null;
 
-            string serializedData = string.Empty;
+            // Prevent serialization of Task types
+            if (value is Task)
+            {
+                throw new InvalidOperationException("Cannot serialize Task objects. Ensure you await all async operations before caching.");
+            }
 
             // Default handling for serialization based on format
-            switch (format?.ToLower())
+            string serializedData = format?.ToLower() switch
             {
-                case "xml":
-                    serializedData = SerializeToXml(value);
-                    break;
-
-                case "json":
-                default:
-                    serializedData = JsonConvert.SerializeObject(value, Serializer.DefaultSettingsWithTypeInfo);
-                    break;
-            }
+                "xml" => SerializeToXml(value),
+                _ => JsonConvert.SerializeObject(value, Serializer.DefaultSettingsWithTypeInfo)
+            };
 
             // Handle compression if enabled
             return enableCompression ? HandleCompression<T>(serializedData) : serializedData;

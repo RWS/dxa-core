@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sdl.Web.Tridion.Caching
 {
@@ -71,6 +72,56 @@ namespace Sdl.Web.Tridion.Caching
                     _keyLocks.TryRemove(hash, out _);
                 }
             }
+        }
+
+        /// <summary>
+        /// GetOrAddAsync
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="region"></param>
+        /// <param name="addFunction"></param>
+        /// <param name="dependencies"></param>
+        /// <returns></returns>
+        public async Task<T> GetOrAddAsync<T>(string key, string region, Func<Task<T>> addFunction, IEnumerable<string> dependencies = null)
+        {
+            if (TryGet<T>(key, region, out T cachedValue))
+                return cachedValue;
+
+            var hash = CalcLockHash(key, region);
+            var lockObject = _keyLocks.GetOrAdd(hash, _ => new object());
+
+            T result;
+
+            // Synchronize the critical section, but await outside the lock
+            lock (lockObject)
+            {
+                try
+                {
+                    if (TryGet<T>(key, region, out cachedValue))
+                        return cachedValue;
+
+                    Interlocked.Increment(ref _reentriesCount);
+                }
+                finally
+                {
+                    _keyLocks.TryRemove(hash, out _);
+                }
+            }
+
+            try
+            {
+                result = await addFunction(); // Await outside the lock
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _reentriesCount);
+            }
+
+            if (result != null)
+                _underlyingCacheProvider.Store(key, region, result, dependencies);
+
+            return result;
         }
 
         private static string CalcLockHash(string key, string region)
