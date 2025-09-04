@@ -1,0 +1,13 @@
+﻿query category($namespaceId: Int!, $publicationId: Int!, $categoryName: String) {
+    category(namespaceId: $namespaceId, publicationId: $publicationId, categoryName: $categoryName) {
+        ...KeywordFieldsWithCustomMetadaFields
+         children {
+            edges {
+                node {
+                    ...KeywordFieldsWithCustomMetadaFields
+                    ...RecursiveChildren
+                }
+            }
+        }
+    }
+}

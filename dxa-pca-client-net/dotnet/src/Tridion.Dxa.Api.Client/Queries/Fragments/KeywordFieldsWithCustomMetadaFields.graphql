@@ -1,0 +1,9 @@
+﻿fragment KeywordFieldsWithCustomMetadaFields on Keyword {
+    name
+    key
+    description
+    hasChildren
+    itemId
+    publicationId
+   ...CustomMetaFields
+}

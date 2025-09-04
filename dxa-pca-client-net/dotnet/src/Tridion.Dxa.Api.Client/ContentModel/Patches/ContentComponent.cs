@@ -6,6 +6,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel.Patches
     {
         public string CreationDate { get; set; }
         public CustomMetaConnection CustomMetas { get; set; }
+        public UntypedContent CustomMetasStructure { get; set; }
         public string Id { get; set; }
         public string InitialPublishDate { get; set; }
         public int ItemId { get; set; }
@@ -14,6 +15,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel.Patches
         public ContentNamespace NamespaceId { get; set; }
         public int? OwningPublicationId { get; set; }
         public int PublicationId { get; set; }
+        public Schema Schema { get; set; }
         public int? SchemaId { get; set; }
         public List<ITaxonomyItem> Taxonomies { get; set; }
         public string Title { get; set; }

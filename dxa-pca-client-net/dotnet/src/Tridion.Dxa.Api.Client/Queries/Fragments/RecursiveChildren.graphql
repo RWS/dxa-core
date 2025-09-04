@@ -1,0 +1,10 @@
+﻿rfragment RecursiveChildren on Keyword {  
+    children {
+        edges {
+            node {
+                ...KeywordFieldsWithCustomMetadaFields
+                ...RecursiveChildren
+            }
+        }
+    }
+}

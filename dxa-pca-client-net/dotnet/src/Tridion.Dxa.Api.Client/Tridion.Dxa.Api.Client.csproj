@@ -11,8 +11,8 @@
     <Description>RWS Digital eXperience Accelerator Framework for RWS Tridion Sites.</Description>
     <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/rws/dxa-pca-client-net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/rws/dxa-pca-client-net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-pca-client-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,6 +23,8 @@
     <None Remove="Queries\BinaryComponentByCmUri.graphql" />
     <None Remove="Queries\BinaryComponentById.graphql" />
     <None Remove="Queries\BinaryComponentByUrl.graphql" />
+    <None Remove="Queries\CategoryByCategoryName.graphql" />
+    <None Remove="Queries\CategoryByCategoryNameNoRecurse.graphql" />
     <None Remove="Queries\ComponentPresentation.graphql" />
     <None Remove="Queries\ComponentPresentations.graphql" />
     <None Remove="Queries\EntityModelById.graphql" />
@@ -36,12 +38,14 @@
     <None Remove="Queries\Fragments\CustomMetaFieldsFilter.graphql" />
     <None Remove="Queries\Fragments\ItemFields.graphql" />
     <None Remove="Queries\Fragments\KeywordFields.graphql" />
+    <None Remove="Queries\Fragments\KeywordFieldsWithCustomMetadaFields.graphql" />
     <None Remove="Queries\Fragments\PageFields.graphql" />
     <None Remove="Queries\Fragments\PageItemFields.graphql" />
     <None Remove="Queries\Fragments\PageTemplateFields.graphql" />
     <None Remove="Queries\Fragments\PublicationFields.graphql" />
     <None Remove="Queries\Fragments\PublicationMappingFields.graphql" />
     <None Remove="Queries\Fragments\RecurseItems.graphql" />
+    <None Remove="Queries\Fragments\RecursiveChildren.graphql" />
     <None Remove="Queries\Fragments\StructureGroupFields.graphql" />
     <None Remove="Queries\Fragments\TaxonomyItemFields.graphql" />
     <None Remove="Queries\Fragments\TaxonomyPageFields.graphql" />
@@ -79,6 +83,9 @@
     <EmbeddedResource Include="Queries\BinaryComponentByUrl.graphql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Queries\CategoryByCategoryName.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Queries\ComponentPresentation.graphql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -91,6 +98,8 @@
     <EmbeddedResource Include="Queries\ExternalItemQuery.graphql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="Queries\Fragments\KeywordFieldsWithCustomMetadaFields.graphql" />
+    <EmbeddedResource Include="Queries\Fragments\RecursiveChildren.graphql" />
     <EmbeddedResource Include="Queries\IntrospectionQuery.graphql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -152,6 +161,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Queries\SitemapSubtree.graphql">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Queries\CategoryByCategoryNameNoRecurse.graphql">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Queries\SitemapSubtreeNoRecurse.graphql">

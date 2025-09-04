@@ -1,4 +1,5 @@
-﻿using Sdl.Web.Common.Models;
+﻿using Sdl.Web.Common.Logging;
+using Sdl.Web.Common.Models;
 using Sdl.Web.Tridion.ApiClient;
 using System;
 using System.Collections.Generic;
@@ -93,17 +94,31 @@ namespace Sdl.Web.Tridion.Providers.Query
 
                 int idx = queryParams.Sort.Trim().IndexOf(" ", StringComparison.Ordinal);
                 string sortColumn = idx > 0 ? queryParams.Sort.Trim().Substring(0, idx) : queryParams.Sort.Trim();
-                switch (sortColumn.ToLower())
+                if (sortColumn.StartsWith("custom-"))
                 {
-                    case "title":
-                        sort.SortBy = SortFieldType.TITLE;
-                        break;
-                    case "pubdate":
-                        sort.SortBy = SortFieldType.LAST_PUBLISH_DATE;
-                        break;
-                    default:
-                        sort.SortBy = SortFieldType.CREATION_DATE;
-                        break;
+                    var split = sortColumn.Split(':');
+                    var type = (MetadataType)Enum.Parse(typeof(MetadataType), split[0].Replace("custom-", ""));
+                    var customMeta = split[1];
+
+                    Log.Debug($"Custom sorting on metadata: {type} {customMeta}");
+                    sort.SortBy = SortFieldType.CUSTOM_META;
+                    sort.Key = customMeta;
+                    sort.KeyType = type;
+                }
+                else
+                {
+                    switch (sortColumn.ToLower())
+                    {
+                        case "title":
+                            sort.SortBy = SortFieldType.TITLE;
+                            break;
+                        case "pubdate":
+                            sort.SortBy = SortFieldType.LAST_PUBLISH_DATE;
+                            break;
+                        default:
+                            sort.SortBy = SortFieldType.CREATION_DATE;
+                            break;
+                    }
                 }
 
                 return sort;

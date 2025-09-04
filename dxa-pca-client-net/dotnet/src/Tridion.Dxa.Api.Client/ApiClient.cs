@@ -11,6 +11,7 @@ using Tridion.Dxa.Api.Client.GraphQLClient.Response;
 using Tridion.Dxa.Api.Client.GraphQLClient.Schema;
 using Tridion.Dxa.Api.Client.HttpClient;
 using Tridion.Dxa.Api.Client.Utils;
+using static Tridion.Dxa.Api.Client.ContentModel.ContentQuery;
 
 namespace Tridion.Dxa.Api.Client
 {
@@ -740,6 +741,43 @@ namespace Tridion.Dxa.Api.Client
                     e);
             }
         }
+
+        public Keyword GetCategoryByCategoryName(ContentNamespace ns, int publicationId, string categoryName,
+    int descendantLevels, string customMetaFilter, IContextData contextData)
+        {
+            try
+            {
+                var response = _client.Execute<ContentQuery>(
+                    GraphQLRequests.CategoryByCategoryName(ns, publicationId, categoryName, descendantLevels,
+                        customMetaFilter, contextData, GlobalContextDataInternal));
+                return response.TypedResponseData.Category;
+            }
+            catch (RuntimeBinderException e)
+            {
+                throw new ApiException(
+                    $"Failed to get category by name (namespaceId:{ns}, publicationId:{publicationId}, categoryName:{categoryName})", e);
+            }
+        }
+
+        public async Task<Keyword> GetCategoryByCategoryNameAsync(ContentNamespace ns, int publicationId, string categoryName,
+            int descendantLevels, string customMetaFilter, IContextData contextData,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            try
+            {
+                var response = await _client.ExecuteAsync<ContentQuery>(
+                    GraphQLRequests.CategoryByCategoryName(ns, publicationId, categoryName, descendantLevels,
+                        customMetaFilter, contextData, GlobalContextDataInternal),
+                    cancellationToken).ConfigureAwait(false);
+                return response.TypedResponseData.Category;
+            }
+            catch (RuntimeBinderException e)
+            {
+                throw new ApiException(
+                    $"Failed to get category by name (namespaceId:{ns}, publicationId:{publicationId}, categoryName:{categoryName})", e);
+            }
+        }
+
 
         #endregion
 

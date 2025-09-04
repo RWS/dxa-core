@@ -81,7 +81,7 @@ namespace Tridion.Dxa.Example.WebApp
                 .ConfigureApplicationPartManager(apm =>
                 apm.ApplicationParts.Add(new AssemblyPart(typeof(Startup).Assembly)
             ));
-            
+
             //Resource Labels
             services.AddLocalization(options => options.ResourcesPath = "Resources");
             //  Core MVC services
@@ -304,24 +304,6 @@ namespace Tridion.Dxa.Example.WebApp
                 && url.StartsWith("https", StringComparison.InvariantCultureIgnoreCase));
         }
 
-        //public static void ConfigureForwardedHeaders(this IServiceCollection services, IConfiguration config)
-        //{
-        //    if (config == null)
-        //    {
-        //        throw new ArgumentNullException("config");
-        //    }
-
-        //    services.Configure(delegate (ForwardedHeadersOptions options)
-        //    {
-        //        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-        //        options.KnownProxies.Clear();
-        //        options.KnownNetworks.Clear();
-        //    });
-        //    TypeDescriptor.AddAttributes(typeof(IPAddress), new TypeConverterAttribute(typeof(IPAddressTypeConverter)));
-        //    TypeDescriptor.AddAttributes(typeof(Microsoft.AspNetCore.HttpOverrides.IPNetwork), new TypeConverterAttribute(typeof(IPNetworkTypeConverter)));
-        //    services.Configure<ForwardedHeadersOptions>(config);
-        //}
-
         private void ConfigureInfrastructureServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -334,42 +316,17 @@ namespace Tridion.Dxa.Example.WebApp
             services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true); //If using IIS
 
             // Redis cache configuration
-            if (NeedsRedisCache())
+            var redisConfig = Configuration.GetSection("SdlWebDelivery:Caching:Handlers:regularDistributedCache");
+            services.AddStackExchangeRedisCache(options =>
             {
-                var redisConfig = Configuration.GetSection("SdlWebDelivery:Caching:Handlers:regularDistributedCache");
-                services.AddStackExchangeRedisCache(options =>
-                {
-                    options.Configuration = redisConfig["ConnectionString"];
-                    options.InstanceName = redisConfig["InstanceName"];
-                });
+                options.Configuration = redisConfig["ConnectionString"];
+                options.InstanceName = redisConfig["InstanceName"];
+            });
 
-                // Add direct Redis connection for advanced operations
-                services.AddSingleton<IConnectionMultiplexer>(sp =>
-                    ConnectionMultiplexer.Connect(redisConfig["ConnectionString"]));
-            }
+            // Add direct Redis connection for advanced operations
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+                ConnectionMultiplexer.Connect(redisConfig["ConnectionString"]));
         }
-
-        private bool NeedsRedisCache()
-        {
-            var regions = Configuration.GetSection("SdlWebDelivery:Caching:Regions").GetChildren();
-            return regions.Any(r =>
-                Configuration.GetValue<string>(
-                    $"SdlWebDelivery:Caching:Handlers:{r["CacheName"]}:Type") == "RedisCacheHandler"
-            );
-        }
-
-        //private void ConfigureErrorHandling(IApplicationBuilder app, IWebHostEnvironment env)
-        //{
-        //    if (env.IsDevelopment())
-        //    {
-        //        app.UseDeveloperExceptionPage();
-        //    }
-        //    else
-        //    {
-        //        app.UseExceptionHandler("/Home/Error");
-        //        app.UseHsts();
-        //    }
-        //}
 
         private void AddDxaModules(IServiceCollection services)
         {

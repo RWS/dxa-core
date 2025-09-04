@@ -7,182 +7,29 @@ using System.Collections.Generic;
 namespace Tridion.Dxa.Api.Client.ContentModel
 {
     /// <summary>
-    /// The query root for the GraphQL Public Content API.
-    /// </summary>
-    public class ContentQuery
+	/// Represents ancestor's behaviour of the sitemap subtree response.
+	/// </summary>
+	[JsonConverter(typeof(StringEnumConverter))]
+    public enum Ancestor
     {
         /// <summary>
-        /// Returns the binary component given its CM_URI (takes precedence over the other arguments).ONLY if CM_URI is not specified, the binary is identified by its namespaceId, publicationId and binaryId. Alternatively a binary variant URL can be used instead of a binary ID.
+        /// By default, do not return ancestors of the given taxonomy node.
         /// </summary>
-        public BinaryComponent BinaryComponent { get; set; }
+        NONE,
 
         /// <summary>
-        /// Resolve a link by parameters.
+        /// Returns path from the root ancestor to the given taxonomy node.
         /// </summary>
-        public Link BinaryLink { get; set; }
+        INCLUDE,
 
-        /// <summary>
-        /// Returns the categories for the given namespace and publication IDs.
-        /// </summary>
-        public KeywordConnection Categories { get; set; }
-
-        /// <summary>
-        /// Returns the component given the namespace, publication, component IDs.
-        /// </summary>
-        public Component Component { get; set; }
-
-        /// <summary>
-        /// Resolve a link by parameters.
-        /// </summary>
-        public Link ComponentLink { get; set; }
-
-        /// <summary>
-        /// Returns the component presentation given the namespace, publication, component and template IDs.
-        /// </summary>
-        public ComponentPresentation ComponentPresentation { get; set; }
-
-        /// <summary>
-        /// Get a list of component presentations filtered by set of criteria.
-        /// </summary>
-        public ComponentPresentationConnection ComponentPresentations { get; set; }
-
-        /// <summary>
-        /// Resolve a link by parameters.
-        /// </summary>
-        public Link DynamicComponentLink { get; set; }
-
-        /// <summary>
-        /// Get a list of items filtered by set of criteria.
-        /// </summary>
-        public ItemConnection Items { get; set; }
-
-        /// <summary>
-        /// Returns the keyword for the given namespace, publication, category and keyword IDs.
-        /// </summary>
-        public Keyword Keyword { get; set; }
-
-        /// <summary>
-        /// Returns the page given its CM_URI. Takes precedence over the other arguments.ONLY If CM_URI is not specified, the page is identified by its namespaceId, publicationId and pageId. Alternatively a page URL can be used instead of a page ID.
-        /// </summary>
-        public Page Page { get; set; }
-
-        /// <summary>
-        /// Resolve a link by parameters.
-        /// </summary>
-        public Link PageLink { get; set; }
-
-        /// <summary>
-        /// Returns the list of pages matching the provided namespace ID and page URL.
-        /// </summary>
-        public PageConnection Pages { get; set; }
-
-        /// <summary>
-        /// Returns the publication given the specified namespace and publication IDs.
-        /// </summary>
-        public Publication Publication { get; set; }
-
-        /// <summary>
-        /// Returns the publication mapping given the specified namespace and site URL.
-        /// </summary>
-        public PublicationMapping PublicationMapping { get; set; }
-
-        /// <summary>
-        /// Returns the publication mappings for all publications or specified publication within the specified namespace.
-        /// </summary>
-        public PublicationMappingConnection PublicationMappings { get; set; }
-
-        /// <summary>
-        /// Returns the list of publications given the namespace ID and an optional filter.
-        /// </summary>
-        public PublicationConnection Publications { get; set; }
-
-        /// <summary>
-        /// Get navigation site map.
-        /// </summary>
-        public TaxonomySitemapItem Sitemap { get; set; }
-
-        /// <summary>
-        /// Get navigation site map subtree.
-        /// </summary>
-        public UntypedContent SitemapStructure { get; set; }
-
-        /// <summary>
-        /// Get navigation site map subtree.
-        /// </summary>
-        public List<TaxonomySitemapItem> SitemapSubtree { get; set; }
-
-        /// <summary>
-        /// Returns the structure group for the given namespace, publication and structure group IDs.
-        /// </summary>
-        public StructureGroup StructureGroup { get; set; }
-
-        /// <summary>
-        /// Returns the structure groups for the given namespace and publication IDs.
-        /// </summary>
-        public StructureGroupConnection StructureGroups { get; set; }
-
-        /// <summary>
-        /// Returns the typed component given the namespace, publication, component IDs.
-        /// </summary>
-        public IContentComponent TypedComponent { get; set; }
-
-        /// <summary>
-        /// Returns the typed page given its CM_URI. Takes precedence over the other arguments.ONLY If CM_URI is not specified, the page is identified by its namespaceId, publicationId and pageId. Alternatively a page URL can be used instead of a page ID.
-        /// </summary>
-        public IPageItem TypedPage { get; set; }
-
-        /// <summary>
-        /// Faceted search using a criteria.
-        /// </summary>
-        public FacetedSearchResults Search { get; set; }
-
-        /// <summary>
-        /// Get ish publication given the specified publication Id.
-        /// </summary>
-        public IshPublication IshPublication { get; set; }
-
-        /// <summary>
-        /// Get list of ish publications.
-        /// </summary>
-        public IshPublicationConnection IshPublications { get; set; }
-
-        /// <summary>
-        /// Get TOC for a given publication.
-        /// </summary>
-        public IshToc IshToc { get; set; }
-
-        /// <summary>
-        /// Get TOC structure for a given publication.
-        /// </summary>
-        public UntypedContent IshTocStructure { get; set; }
-
-        /// <summary>
-        /// Get topic by Id or Url.
-        /// </summary>
-        //public IIshTopic IshTopic { get; set; }
-        public IshGenericTopic IshTopic { get; set; }
-
-        /// <summary>
-        /// Get a list of topics matching filter.
-        /// </summary>
-        public IshTopicConnection IshTopics { get; set; }
-
-        /// <summary>
-        /// Suggest
-        /// </summary>
-        public ConceptSuggestionConnection Suggest { get; set; }
-
-        /// <summary>
-        /// Taxonomy search.
-        /// </summary>
-        public List<ConceptScheme> Taxonomy { get; set; }
+        INCLUDE_ANCESTORS_WITH_SIBLINGS
     }
 
 
     /// <summary>
     /// Represents a component which has binary content.
     /// </summary>
-    public class BinaryComponent : IContentComponent, IItem
+    public class BinaryComponent : IContentComponent, ITaggable, IItem
     {
         /// <summary>
         /// Returns the date the item was created.
@@ -193,6 +40,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the custom meta data for the item.
         /// </summary>
         public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
 
         /// <summary>
         /// Identifies the unique ID of the node.
@@ -235,6 +87,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public int PublicationId { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Returns the schema ID for the component.
         /// </summary>
         public int? SchemaId { get; set; }
@@ -268,281 +125,6 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns true if the component is a multimedia (binary) component.
         /// </summary>
         public bool? MultiMedia { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class CustomMetaConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<CustomMetaEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class CustomMetaEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public CustomMeta Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    /// <summary>
-    /// Represents custom metadata.
-    /// </summary>
-    public class CustomMeta
-    {
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID of the custom meta.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Identifies the key of the custom meta.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the custom meta.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the custom meta.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the value of the custom meta.
-        /// </summary>
-        public string Value { get; set; }
-
-        /// <summary>
-        /// Identifies the value type of the custom meta.
-        /// </summary>
-        public CustomMetaValueType ValueType { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum CustomMetaValueType
-    {
-        /// <summary>
-        /// STRING
-        /// </summary>
-        STRING,
-
-        /// <summary>
-        /// DATE
-        /// </summary>
-        DATE,
-
-        /// <summary>
-        /// FLOAT
-        /// </summary>
-        FLOAT,
-
-        /// <summary>
-        /// NUMBER
-        /// </summary>
-        NUMBER,
-
-        UNKNOWN
-    }
-
-    /// <summary>
-    /// Represents a taxonomy item.
-    /// </summary>
-    public interface ITaxonomyItem
-    {
-        /// <summary>
-        /// Returns the child taxonomies for the taxonomy.
-        /// </summary>
-        TaxonomyItemConnection Children { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Returns the depth (level) of the taxonomy.
-        /// </summary>
-        int? Depth { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the key of the taxonomy.
-        /// </summary>
-        string Key { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the parent taxonomy of the taxonomy.
-        /// </summary>
-        ITaxonomyItem Parent { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        int PublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the ID of the taxonomy.
-        /// </summary>
-        int TaxonomyId { get; set; }
-
-        /// <summary>
-        /// Identifies the type of the taxonomy.
-        /// </summary>
-        TaxonomyType TaxonomyType { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy has child taxonomies.
-        /// </summary>
-        bool? HasChildren { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy is abstract.
-        /// </summary>
-        bool? Abstract { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy is navigable.
-        /// </summary>
-        bool? Navigable { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class TaxonomyItemConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<TaxonomyItemEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class TaxonomyItemEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public ITaxonomyItem Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum TaxonomyType
-    {
-        /// <summary>
-        /// KEYWORD
-        /// </summary>
-        KEYWORD,
-
-        /// <summary>
-        /// CATEGORY
-        /// </summary>
-        CATEGORY,
-
-        STRUCTUREGROUP
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class BinaryVariantConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<BinaryVariantEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class BinaryVariantEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public BinaryVariant Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
     }
 
     /// <summary>
@@ -592,298 +174,36 @@ namespace Tridion.Dxa.Api.Client.ContentModel
     }
 
     /// <summary>
-    /// Represents a component which has content.
+    /// A connection to a list of items.
     /// </summary>
-    public interface IContentComponent
+    public class BinaryVariantConnection
     {
         /// <summary>
-        /// Returns the date the item was created.
+        /// a list of edges
         /// </summary>
-        string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the schema ID for the component.
-        /// </summary>
-        int? SchemaId { get; set; }
-
-        /// <summary>
-        /// Returns the list of taxonomies for the item.
-        /// </summary>
-        List<ITaxonomyItem> Taxonomies { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Returns true if the component is a multimedia (binary) component.
-        /// </summary>
-        bool? MultiMedia { get; set; }
+        public List<BinaryVariantEdge> Edges { get; set; }
     }
 
     /// <summary>
-    /// Represents a page item. The root of all page models.
+    /// An edge in a connection
     /// </summary>
-    public interface IPageItem
+    public class BinaryVariantEdge
     {
         /// <summary>
-        /// Returns the list of components in region.
+        /// The item at the end of the edge
         /// </summary>
-        List<IContentComponent> Components { get; set; }
+        public BinaryVariant Node { get; set; }
 
         /// <summary>
-        /// Returns the items in this container.
+        /// cursor marks a unique position or index into the connection
         /// </summary>
-        List<IItem> ContainerItems { get; set; }
-
-        /// <summary>
-        /// Returns the content in the page.
-        /// </summary>
-        IContent Content { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
-        /// </summary>
-        UntypedContent CustomMetasStructure { get; set; }
-
-        /// <summary>
-        /// Returns the file name path to the page.
-        /// </summary>
-        string FileName { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Returns the name of the region.
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the template for the page.
-        /// </summary>
-        Template PageTemplate { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the raw content in the page.
-        /// </summary>
-        RawContent RawContent { get; set; }
-
-        /// <summary>
-        /// Returns the regions for the page.
-        /// </summary>
-        List<IPageRegion> Regions { get; set; }
-
-        /// <summary>
-        /// Returns the list of taxonomies for the item.
-        /// </summary>
-        List<ITaxonomyItem> Taxonomies { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Identifies the URL of the page.
-        /// </summary>
-        string Url { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a page region.
-    /// </summary>
-    public interface IPageRegion
-    {
-        /// <summary>
-        /// Returns the list of components in region.
-        /// </summary>
-        List<IContentComponent> Components { get; set; }
-
-        /// <summary>
-        /// Returns the name of the region.
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// Returns the regions for the page.
-        /// </summary>
-        List<IPageRegion> Regions { get; set; }
-    }
-
-    /// <summary>
-    /// Represents an item. The root of all content models.
-    /// </summary>
-    public interface IItem
-    {
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        string UpdatedDate { get; set; }
+        public string Cursor { get; set; }
     }
 
     /// <summary>
     /// Represents an Ambient Data Framework claim value.
     /// </summary>
-    public class InputClaimValue
+    public class ClaimValue
     {
         /// <summary>
         /// The claim value type.
@@ -900,420 +220,6 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// </summary>
         public string Value { get; set; }
     }
-
-    /// <summary>
-    /// Filter for the componentPresentation root query. When the filter is applied, only the component presentations matching the filter will be in the query result
-    /// </summary>
-    public class InputComponentPresentationFilter
-    {
-        /// <summary>
-        /// List of filters. Items in the query result will match ALL of the elements of the list
-        /// </summary>
-        public List<InputComponentPresentationFilter> And { get; set; }
-
-        public InputCustomMetaCriteria CustomMeta { get; set; }
-
-        public InputDateRangeCriteriaImpl DateRange { get; set; }
-
-        public InputKeywordCriteria Keyword { get; set; }
-
-        /// <summary>
-        /// List of filters. Items in the query result will match ANY of the elements of the list
-        /// </summary>
-        public List<InputComponentPresentationFilter> Or { get; set; }
-
-        public InputSchemaCriteria Schema { get; set; }
-
-        public InputTemplateCriteria Template { get; set; }
-    }
-
-    public class InputConcept
-    {
-        /// <summary>
-        /// Concept IDs
-        /// </summary>
-        public List<string> ConceptIds { get; set; }
-
-        /// <summary>
-        /// Concept labels
-        /// </summary>
-        public List<string> ConceptLabels { get; set; }
-
-        /// <summary>
-        /// Namespace connector ID
-        /// </summary>
-        public string ConnectorId { get; set; }
-
-        /// <summary>
-        /// Language
-        /// </summary>
-        public string Language { get; set; }
-
-        /// <summary>
-        /// Concept scheme title
-        /// </summary>
-        public string SchemeTitle { get; set; }
-    }
-
-    /// <summary>
-    /// Concept Facet
-    /// </summary>
-    public class InputConceptFacet
-    {
-        /// <summary>
-        /// Concept scheme Title
-        /// </summary>
-        public string SchemeTitle { get; set; }
-
-        /// <summary>
-        /// Connector namespace Id.
-        /// </summary>
-        public string ConnectorId { get; set; }
-
-        /// <summary>
-        /// Maximum number of results per concept scheme.
-        /// </summary>
-        public int? First { get; set; }
-
-        /// <summary>
-        /// Language
-        /// </summary>
-        public string Language { get; set; }
-    }
-
-    /// <summary>
-    /// Input Concept Recommendation
-    /// </summary>
-    public class InputConceptRecommendation
-    {
-        /// <summary>
-        /// Boost factor for given concept scheme. Default value is 1.0
-        /// </summary>
-        public float BoostBy { get; set; }
-
-        /// <summary>
-        /// Parent level used when broadening the results with hierarchy for given concept scheme. Default value is 0, broadening will not happen. When value is 1 or higher, broadening will happen until given level.
-        /// </summary>
-        public int? BroadenBy { get; set; }
-
-        /// <summary>
-        /// When defined concept IDs will be used for recommendations
-        /// </summary>
-        public List<string> ConceptIds { get; set; }
-
-        /// <summary>
-        /// Namespace connector ID
-        /// </summary>
-        public string ConnectorId { get; set; }
-    }
-
-    public class InputCriteria
-    {
-        public List<InputCriteria> And { get; set; }
-
-        public InputConcept Concept { get; set; }
-
-        public InputField Field { get; set; }
-
-        public List<InputCriteria> GroupBy { get; set; }
-
-        public InputId Id { get; set; }
-
-        public InputFieldLanguage LanguageField { get; set; }
-
-        public InputFieldMetadata MetadataField { get; set; }
-
-        public List<InputCriteria> Or { get; set; }
-    }
-
-    public class InputCustomMetaCriteria
-    {
-        public string Key { get; set; }
-
-        /// <summary>
-        /// If not given, defaults to Item
-        /// </summary>
-        public CriteriaScope Scope { get; set; }
-
-        public string Value { get; set; }
-
-        public CustomMetaValueType ValueType { get; set; }
-    }
-
-    public class InputDateRangeCriteriaImpl
-    {
-        /// <summary>
-        /// End date & time
-        /// </summary>
-        public string End { get; set; }
-
-        /// <summary>
-        /// Start date & time
-        /// </summary>
-        public string Start { get; set; }
-
-        /// <summary>
-        /// Date range type
-        /// </summary>
-        public DateRangeType Type { get; set; }
-    }
-
-    /// <summary>
-    /// Input Facets
-    /// </summary>
-    public class InputFacets
-    {
-        /// <summary>
-        /// Concept facets
-        /// </summary>
-        public List<InputConceptFacet> Concepts { get; set; }
-    }
-
-    public class InputField
-    {
-        public string Key { get; set; }
-
-        public bool? Strict { get; set; }
-
-        public string Value { get; set; }
-    }
-
-    public class InputFieldLanguage
-    {
-        public string Key { get; set; }
-
-        public string Language { get; set; }
-
-        public bool? Strict { get; set; }
-
-        public string Value { get; set; }
-    }
-
-    public class InputFieldMetadata
-    {
-        public List<string> Keys { get; set; }
-
-        public bool? Strict { get; set; }
-
-        public MetadataFieldType Type { get; set; }
-
-        public string Value { get; set; }
-    }
-
-    public class InputId
-    {
-        public List<string> Values { get; set; }
-    }
-
-    /// <summary>
-    /// Represents an ish condition.
-    /// </summary>
-    public class InputIshCondition
-    {
-        /// <summary>
-        /// The condition name.
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// The condition values.
-        /// </summary>
-        public List<string> Values { get; set; }
-    }
-
-    /// <summary>
-    /// Docs Item filter for the topics root query. When the filter is applied, only the items matching the filter will be in the query result
-    /// </summary>
-    public class InputIshItemFilter
-    {
-        /// <summary>
-        /// List of filters. Items in the query result will match ALL of the elements of the list
-        /// </summary>
-        public List<InputIshItemFilter> And { get; set; }
-
-        public InputCustomMetaCriteria CustomMeta { get; set; }
-
-        /// <summary>
-        /// List of filters. Items in the query result will match ANY of the elements of the list
-        /// </summary>
-        public List<InputIshItemFilter> Or { get; set; }
-
-        /// <summary>
-        /// list of publication IDs
-        /// </summary>
-        public List<int?> PublicationIds { get; set; }
-    }
-
-    /// <summary>
-    /// Item filter for the items root query. When the filter is applied, only the items matching the filter will be in the query result
-    /// </summary>
-    public class InputItemFilter
-    {
-        /// <summary>
-        /// List of filters. Items in the query result will match ALL of the elements of the list
-        /// </summary>
-        public List<InputItemFilter> And { get; set; }
-
-        public InputCustomMetaCriteria CustomMeta { get; set; }
-
-        /// <summary>
-        /// list of item types to be selected
-        /// </summary>
-        public List<FilterItemType> ItemTypes { get; set; }
-
-        public InputKeywordCriteria Keyword { get; set; }
-
-        /// <summary>
-        /// list of namespace IDs
-        /// </summary>
-        public List<ContentNamespace> NamespaceIds { get; set; }
-
-        /// <summary>
-        /// List of filters. Items in the query result will match ANY of the elements of the list
-        /// </summary>
-        public List<InputItemFilter> Or { get; set; }
-
-        /// <summary>
-        /// list of publication IDs
-        /// </summary>
-        public List<int?> PublicationIds { get; set; }
-
-        public InputSchemaCriteria Schema { get; set; }
-    }
-
-    public class InputKeywordCriteria
-    {
-        /// <summary>
-        /// Id of the category. Takes precedence over categoryName, if both are present
-        /// </summary>
-        public int? CategoryId { get; set; }
-
-        public string CategoryName { get; set; }
-
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Id of the keyword. Takes precedence over key, if both are present
-        /// </summary>
-        public int? KeywordId { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a filter for a publication query.
-    /// </summary>
-    public class InputPublicationFilter
-    {
-        /// <summary>
-        /// Represents the query type for the filter.
-        /// </summary>
-        public ContentFilterQueryType QueryType { get; set; }
-
-        /// <summary>
-        /// Represents the value to filter by in the form of 'key=value' pair.
-        /// </summary>
-        public string Value { get; set; }
-
-        /// <summary>
-        /// Represents the custom meta value type for the filter. UNKNOWN not supported. Defaults to 'String', if empty.
-        /// </summary>
-        public CustomMetaValueType ValueType { get; set; }
-    }
-
-    /// <summary>
-    /// Input parameter to enable recommendations
-    /// </summary>
-    public class InputRecommendation
-    {
-        /// <summary>
-        /// Recommend items for the given concepts
-        /// </summary>
-        public List<InputConceptRecommendation> Concepts { get; set; }
-
-        /// <summary>
-        /// Recommend items for the given item ID
-        /// </summary>
-        public string Id { get; set; }
-    }
-
-    /// <summary>
-    /// Filtering and highlighting the search results
-    /// </summary>
-    public class InputResultFilter
-    {
-        /// <summary>
-        /// Fields that will be excluded from results.
-        /// </summary>
-        public List<string> ExcludeFields { get; set; }
-
-        /// <summary>
-        /// Parameter to enable highlight in all.
-        /// </summary>
-        public bool? HighlightInAllIsEnabled { get; set; }
-
-        /// <summary>
-        /// Parameter to enable highlight.
-        /// </summary>
-        public bool? HighlightingIsEnabled { get; set; }
-    }
-
-    public class InputSchemaCriteria
-    {
-        /// <summary>
-        /// Id of the schema. Takes precedence over title, if both are present
-        /// </summary>
-        public int? Id { get; set; }
-
-        /// <summary>
-        /// Title of the schema. Applicable only for schemas related to dynamic component presentations.
-        /// </summary>
-        public string Title { get; set; }
-    }
-
-    /// <summary>
-	/// To define the metadata field type
-	/// </summary>
-	[JsonConverter(typeof(StringEnumConverter))]
-    public enum MetadataFieldType
-    {
-        /// <summary>
-        /// ANY
-        /// </summary>
-        ANY,
-
-        /// <summary>
-        /// DATE
-        /// </summary>
-        DATE,
-
-        /// <summary>
-        /// DOUBLE
-        /// </summary>
-        DOUBLE,
-
-        /// <summary>
-        /// LONG
-        /// </summary>
-        LONG,
-
-        TEXT
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum MetadataType
-    {
-        /// <summary>
-        /// STRING
-        /// </summary>
-        STRING,
-
-        /// <summary>
-        /// DATE
-        /// </summary>
-        DATE,
-
-        FLOAT
-    }
-
 
     /// <summary>
     /// Represents the type of claim value.
@@ -1345,96 +251,14 @@ namespace Tridion.Dxa.Api.Client.ContentModel
     }
 
     /// <summary>
-    /// Represents a Link.
+    /// Represents a regular component.
     /// </summary>
-    public class Link
+    public class Component : IContentComponent, ITaggable, IItem
     {
         /// <summary>
-        /// Identifies the item ID.
+        /// Returns the content of the component.
         /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Link type.
-        /// </summary>
-        public LinkType Type { get; set; }
-
-        /// <summary>
-        /// Link url.
-        /// </summary>
-        public string Url { get; set; }
-    }
-
-    /// <summary>
-    /// Represents the type of link.
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum LinkType
-    {
-        /// <summary>
-        /// A page link.
-        /// </summary>
-        PAGE,
-
-        /// <summary>
-        /// A component link.
-        /// </summary>
-        COMPONENT,
-
-        /// <summary>
-        /// A binary link.
-        /// </summary>
-        BINARY,
-
-        DYNAMIC_COMPONENT
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class KeywordConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<KeywordEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class KeywordEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public Keyword Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a keyword taxonomy item.
-    /// </summary>
-    public class Keyword : ITaxonomyItem, IItem
-    {
-        /// <summary>
-        /// Returns the child taxonomies for the taxonomy.
-        /// </summary>
-        public TaxonomyItemConnection Children { get; set; }
+        public IContent Content { get; set; }
 
         /// <summary>
         /// Returns the date the item was created.
@@ -1447,14 +271,9 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public CustomMetaConnection CustomMetas { get; set; }
 
         /// <summary>
-        /// Returns the depth (level) of the taxonomy.
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
         /// </summary>
-        public int? Depth { get; set; }
-
-        /// <summary>
-        /// Returns the description of the keyword.
-        /// </summary>
-        public string Description { get; set; }
+        public UntypedContent CustomMetasStructure { get; set; }
 
         /// <summary>
         /// Identifies the unique ID of the node.
@@ -1477,19 +296,9 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
 
         /// <summary>
-        /// Returns the key of the taxonomy.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
         /// Returns the date the item was most recently published.
         /// </summary>
         public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Returns the name of the keyword.
-        /// </summary>
-        public string Name { get; set; }
 
         /// <summary>
         /// Identifies the namespace ID of the item.
@@ -1502,24 +311,24 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public int? OwningPublicationId { get; set; }
 
         /// <summary>
-        /// Returns the parent taxonomy of the taxonomy.
-        /// </summary>
-        public ITaxonomyItem Parent { get; set; }
-
-        /// <summary>
         /// Identifies the publication ID of the item.
         /// </summary>
         public int PublicationId { get; set; }
 
         /// <summary>
-        /// Identifies the ID of the taxonomy.
+        /// Returns the schema for the item.
         /// </summary>
-        public int TaxonomyId { get; set; }
+        public Schema Schema { get; set; }
 
         /// <summary>
-        /// Identifies the type of the taxonomy.
+        /// Returns the schema ID for the component.
         /// </summary>
-        public TaxonomyType TaxonomyType { get; set; }
+        public int? SchemaId { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        public List<ITaxonomyItem> Taxonomies { get; set; }
 
         /// <summary>
         /// Returns the title of the item.
@@ -1527,34 +336,19 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public string Title { get; set; }
 
         /// <summary>
-        /// Returns total number of related items.
-        /// </summary>
-        public int? TotalRelatedItems { get; set; }
-
-        /// <summary>
         /// Returns the date the item was updated.
         /// </summary>
         public string UpdatedDate { get; set; }
 
         /// <summary>
-        /// Returns true if the taxonomy has child taxonomies.
+        /// Returns true if the component is a multimedia (binary) component.
         /// </summary>
-        public bool? HasChildren { get; set; }
+        public bool? MultiMedia { get; set; }
 
         /// <summary>
-        /// Returns true if the taxonomy is abstract.
+        /// Resolve component link to a page.
         /// </summary>
-        public bool? Abstract { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy is navigable.
-        /// </summary>
-        public bool? Navigable { get; set; }
-
-        /// <summary>
-        /// Returns true if the keyword is used for identification.
-        /// </summary>
-        public bool? UsedForIdentification { get; set; }
+        public Link ResolvedLink { get; set; }
     }
 
     /// <summary>
@@ -1573,7 +367,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public Template ComponentTemplate { get; set; }
 
         /// <summary>
-        /// Returns the content of the component presentation.
+        /// Returns the content of this fragment.
         /// </summary>
         public IContent Content { get; set; }
 
@@ -1586,6 +380,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the custom meta data for the item.
         /// </summary>
         public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
 
         /// <summary>
         /// Identifies the unique ID of the node.
@@ -1633,80 +432,9 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public RawContent RawContent { get; set; }
 
         /// <summary>
-        /// Returns the title of the item.
+        /// Returns the schema for the item.
         /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        public string UpdatedDate { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a template.
-    /// </summary>
-    public class Template : IItem
-    {
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        public string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        public CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        public string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the output format of the template.
-        /// </summary>
-        public string OutputFormat { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        public int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the priority of the template.
-        /// </summary>
-        public int? Priority { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
+        public Schema Schema { get; set; }
 
         /// <summary>
         /// Returns the title of the item.
@@ -1717,116 +445,6 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the date the item was updated.
         /// </summary>
         public string UpdatedDate { get; set; }
-    }
-
-    public interface IContent
-    {
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Identifies the type of the content.
-        /// </summary>
-        string Type { get; set; }
-    }
-
-    /// <summary>
-    /// Represents an item with content.
-    /// </summary>
-    public class RawContent
-    {
-        /// <summary>
-        /// Returns the character set encoding of the string content.
-        /// </summary>
-        public string CharSet { get; set; }
-
-        /// <summary>
-        /// Returns the string content.
-        /// </summary>
-        public string Content { get; set; }
-
-        /// <summary>
-        /// Return content data
-        /// </summary>
-        public IDictionary Data { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a fragment of content.
-    /// </summary>
-    public interface IContentFragment
-    {
-        /// <summary>
-        /// Returns the content of this fragment.
-        /// </summary>
-        IContent Content { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        string UpdatedDate { get; set; }
     }
 
     /// <summary>
@@ -1854,1270 +472,6 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// cursor marks a unique position or index into the connection
         /// </summary>
         public string Cursor { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum CriteriaScope
-    {
-        /// <summary>
-        /// Publication
-        /// </summary>
-        Publication,
-
-        /// <summary>
-        /// Item
-        /// </summary>
-        Item,
-
-        ItemInPublication
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum DateRangeType
-    {
-        /// <summary>
-        /// CREATION_DATE
-        /// </summary>
-        CREATION_DATE,
-
-        /// <summary>
-        /// UPDATED_DATE
-        /// </summary>
-        UPDATED_DATE,
-
-        /// <summary>
-        /// INITIAL_PUBLISH_DATE
-        /// </summary>
-        INITIAL_PUBLISH_DATE,
-
-        LAST_PUBLISH_DATE
-    }
-
-    public class InputTemplateCriteria
-    {
-        /// <summary>
-        /// Id of the template.
-        /// </summary>
-        public int? Id { get; set; }
-    }
-
-    /// <summary>
-    /// Sorting the search results
-    /// </summary>
-    public class InputSortBy
-    {
-        /// <summary>
-        /// Fields to sort.
-        /// </summary>
-        public List<string> Fields { get; set; }
-
-        /// <summary>
-        /// Sort values as text.
-        /// </summary>
-        public bool? SortAsText { get; set; }
-
-        /// <summary>
-        /// Sorting direction.
-        /// </summary>
-        public SortingDirectionType SortingDirection { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a typical sort type. When used, the default sorting mechanism (by namespace and by id) is overridden
-    /// </summary>
-    public class InputSortParam
-    {
-        /// <summary>
-        /// The sort order type.
-        /// </summary>
-        public SortOrderType Order { get; set; }
-
-        /// <summary>
-        /// The item field used for sorting
-        /// </summary>
-        public SortFieldType SortBy { get; set; }
-
-        public SortKeyType KeyType { get; set; }
-        public string Key { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SortKeyType
-    {
-        DATE,
-        FLOAT,
-        STRING
-    }
-
-    /// <summary>
-    /// Represents a type of natural sort: descending or ascending
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SortOrderType
-    {
-        /// <summary>
-        /// A string value
-        /// </summary>
-        Ascending,
-
-        Descending
-    }
-
-    /// <summary>
-    /// These are the fields that allow sorting
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SortFieldType
-    {
-        /// <summary>
-        /// CREATION_DATE
-        /// </summary>
-        CREATION_DATE,
-
-        /// <summary>
-        /// INITIAL_PUBLISH_DATE
-        /// </summary>
-        INITIAL_PUBLISH_DATE,
-
-        /// <summary>
-        /// ITEM_ID
-        /// </summary>
-        ITEM_ID,
-
-        /// <summary>
-        /// ITEM_TYPE
-        /// </summary>
-        ITEM_TYPE,
-
-        /// <summary>
-        /// LAST_PUBLISH_DATE
-        /// </summary>
-        LAST_PUBLISH_DATE,
-
-        /// <summary>
-        /// NAMESPACE_ID
-        /// </summary>
-        NAMESPACE_ID,
-
-        /// <summary>
-        /// OWNING_PUBLICATION_ID
-        /// </summary>
-        OWNING_PUBLICATION_ID,
-
-        /// <summary>
-        /// PUBLICATION_ID
-        /// </summary>
-        PUBLICATION_ID,
-
-        /// <summary>
-        /// TITLE
-        /// </summary>
-        TITLE,
-
-        UPDATED_DATE,
-
-        CUSTOM_META
-    }
-
-    /// <summary>
-    /// Sorting direction of results
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum SortingDirectionType
-    {
-        /// <summary>
-        /// ASCENDING
-        /// </summary>
-        ASCENDING,
-
-        DESCENDING
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class ItemConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<ItemEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to an external item instance.
-    /// </summary>
-    /// <typeparam name="T">external item type</typeparam>
-    public class ExternalItemConnection<T>
-    {
-        /// <summary>
-        /// External item instance.
-        /// </summary>
-        public T ExternalItem { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class ItemEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public IItem Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum FilterItemType
-    {
-        /// <summary>
-        /// PUBLICATION
-        /// </summary>
-        PUBLICATION,
-
-        /// <summary>
-        /// COMPONENT
-        /// </summary>
-        COMPONENT,
-
-        /// <summary>
-        /// COMPONENT_TEMPLATE
-        /// </summary>
-        COMPONENT_TEMPLATE,
-
-        /// <summary>
-        /// PAGE
-        /// </summary>
-        PAGE,
-
-        /// <summary>
-        /// PAGE_TEMPLATE
-        /// </summary>
-        PAGE_TEMPLATE,
-
-        /// <summary>
-        /// CATEGORY
-        /// </summary>
-        CATEGORY,
-
-        KEYWORD
-    }
-
-    /// <summary>
-    /// Represents a page.
-    /// </summary>
-    public class Page : IContainer, ITaggable, IItem
-    {
-        /// <summary>
-        /// Returns the items in this container.
-        /// </summary>
-        public List<IItem> ContainerItems { get; set; }
-
-        /// <summary>
-        /// Returns the content in the page.
-        /// </summary>
-        public IContent Content { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        public string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        public CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Returns the file name path to the page.
-        /// </summary>
-        public string FileName { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        public string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        public int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the template for the page.
-        /// </summary>
-        public Template PageTemplate { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the raw content in the page.
-        /// </summary>
-        public RawContent RawContent { get; set; }
-
-        /// <summary>
-        /// Returns the list of taxonomies for the item.
-        /// </summary>
-        public List<ITaxonomyItem> Taxonomies { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        public string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Identifies the URL of the page.
-        /// </summary>
-        public string Url { get; set; }
-    }
-
-    /// <summary>
-    /// Represents the type of container.
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ContainerType
-    {
-        COMPONENT_PRESENTATION
-    }
-
-    /// <summary>
-    /// Represents a container for items.
-    /// </summary>
-    public interface IContainer
-    {
-        /// <summary>
-        /// Returns the items in this container.
-        /// </summary>
-        List<IItem> ContainerItems { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a related set of entities.
-    /// </summary>
-    public interface ITaggable
-    {
-        /// <summary>
-        /// Returns the list of taxonomies for the item.
-        /// </summary>
-        List<ITaxonomyItem> Taxonomies { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class PageConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<PageEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class PageEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public Page Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a publication.
-    /// </summary>
-    public class Publication : IItem
-    {
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        public string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        public CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        public string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Returns the multimedia path for the publication.
-        /// </summary>
-        public string MultimediaPath { get; set; }
-
-        /// <summary>
-        /// Returns the multimedia URL for the publication.
-        /// </summary>
-        public string MultimediaUrl { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        public int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the publication key.
-        /// </summary>
-        public string PublicationKey { get; set; }
-
-        /// <summary>
-        /// Returns the publication path.
-        /// </summary>
-        public string PublicationPath { get; set; }
-
-        /// <summary>
-        /// Returns the publication URL.
-        /// </summary>
-        public string PublicationUrl { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        public string UpdatedDate { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a publication mapping.
-    /// </summary>
-    public class PublicationMapping
-    {
-        /// <summary>
-        /// Returns the domain.
-        /// </summary>
-        public string Domain { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        public string Path { get; set; }
-
-        /// <summary>
-        /// Returns the scan depth.
-        /// </summary>
-        public int? PathScanDepth { get; set; }
-
-        /// <summary>
-        /// Returns the port.
-        /// </summary>
-        public string Port { get; set; }
-
-        /// <summary>
-        /// Returns the protocol.
-        /// </summary>
-        public string Protocol { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class PublicationMappingConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<PublicationMappingEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class PublicationMappingEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public PublicationMapping Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class PublicationConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<PublicationEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class PublicationEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public Publication Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum ContentFilterQueryType
-    {
-        CUSTOM_META
-    }
-
-    /// <summary>
-    /// Represents a structure group.
-    /// </summary>
-    public class StructureGroup : ITaxonomyItem, IItem
-    {
-        /// <summary>
-        /// Returns the child taxonomies for the taxonomy.
-        /// </summary>
-        public TaxonomyItemConnection Children { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        public string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        public CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Returns the depth (level) of the taxonomy.
-        /// </summary>
-        public int? Depth { get; set; }
-
-        /// <summary>
-        /// Returns the directory of the structure group.
-        /// </summary>
-        public string Directory { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        public string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the key of the taxonomy.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        public int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the parent taxonomy of the taxonomy.
-        /// </summary>
-        public ITaxonomyItem Parent { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the ID of the taxonomy.
-        /// </summary>
-        public int TaxonomyId { get; set; }
-
-        /// <summary>
-        /// Identifies the type of the taxonomy.
-        /// </summary>
-        public TaxonomyType TaxonomyType { get; set; }
-
-        /// <summary>
-        /// Returns the title of the structure group.
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        public string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy has child taxonomies.
-        /// </summary>
-        public bool? HasChildren { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy is abstract.
-        /// </summary>
-        public bool? Abstract { get; set; }
-
-        /// <summary>
-        /// Returns true if the taxonomy is navigable.
-        /// </summary>
-        public bool? Navigable { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class StructureGroupConnection
-    {
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<StructureGroupEdge> Edges { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class StructureGroupEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public StructureGroup Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    public class TaxonomySitemapItem : ISitemapItem
-    {
-        /// <summary>
-        /// Classified Items Count
-        /// </summary>
-        public int? ClassifiedItemsCount { get; set; }
-
-        /// <summary>
-        /// Description
-        /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Items
-        /// </summary>
-        public List<ISitemapItem> Items { get; set; }
-
-        /// <summary>
-        /// Key
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// Original title
-        /// </summary>
-        public string OriginalTitle { get; set; }
-
-        /// <summary>
-        /// The most recent date this item was published.
-        /// </summary>
-        public string PublishedDate { get; set; }
-
-        /// <summary>
-        /// Title
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Type
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
-        /// URL
-        /// </summary>
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Is Abstract
-        /// </summary>
-        public bool? Abstract { get; set; }
-
-        /// <summary>
-        /// Has Child Nodes
-        /// </summary>
-        public bool? HasChildNodes { get; set; }
-
-        /// <summary>
-        /// Visible
-        /// </summary>
-        public bool? Visible { get; set; }
-    }
-
-    /// <summary>
-    /// Sitemap Item
-    /// </summary>
-    public interface ISitemapItem
-    {
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        string Id { get; set; }
-
-        /// <summary>
-        /// Original title
-        /// </summary>
-        string OriginalTitle { get; set; }
-
-        /// <summary>
-        /// The most recent date this item was published.
-        /// </summary>
-        string PublishedDate { get; set; }
-
-        /// <summary>
-        /// Title
-        /// </summary>
-        string Title { get; set; }
-
-        /// <summary>
-        /// Type
-        /// </summary>
-        string Type { get; set; }
-
-        /// <summary>
-        /// URL
-        /// </summary>
-        string Url { get; set; }
-
-        /// <summary>
-        /// Visible
-        /// </summary>
-        bool? Visible { get; set; }
-    }
-
-    /// <summary>
-    /// Represents ancestor's behaviour of the sitemap subtree response.
-    /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum Ancestor
-    {
-        /// <summary>
-        /// By default, do not return ancestors of the given taxonomy node.
-        /// </summary>
-        NONE,
-
-        INCLUDE
-    }
-
-    /// <summary>
-    /// Represents a node.
-    /// </summary>
-    public class Node
-    {
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-    }
-
-    /// <summary>
-    /// Untyped content where all data is available in a Map structure.
-    /// </summary>
-    public class UntypedContent : IContent
-    {
-        /// <summary>
-        /// Return content data
-        /// </summary>
-        public IDictionary Data { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Identifies the type of the content.
-        /// </summary>
-        public string Type { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a regular component.
-    /// </summary>
-    public class Component : IContentComponent, IItem
-    {
-        /// <summary>
-        /// Returns the date the item was created.
-        /// </summary>
-        public string CreationDate { get; set; }
-
-        /// <summary>
-        /// Returns the custom meta data for the item.
-        /// </summary>
-        public CustomMetaConnection CustomMetas { get; set; }
-
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was initially published.
-        /// </summary>
-        public string InitialPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the item ID.
-        /// </summary>
-        public int ItemId { get; set; }
-
-        /// <summary>
-        /// Returns the item type of the item.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was most recently published.
-        /// </summary>
-        public string LastPublishDate { get; set; }
-
-        /// <summary>
-        /// Identifies the namespace ID of the item.
-        /// </summary>
-        public ContentNamespace NamespaceId { get; set; }
-
-        /// <summary>
-        /// Returns the publication ID of the publication to which this item belongs.
-        /// </summary>
-        public int? OwningPublicationId { get; set; }
-
-        /// <summary>
-        /// Identifies the publication ID of the item.
-        /// </summary>
-        public int PublicationId { get; set; }
-
-        /// <summary>
-        /// Returns the schema ID for the component.
-        /// </summary>
-        public int? SchemaId { get; set; }
-
-        /// <summary>
-        /// Returns the list of taxonomies for the item.
-        /// </summary>
-        public List<ITaxonomyItem> Taxonomies { get; set; }
-
-        /// <summary>
-        /// Returns the title of the item.
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Returns the date the item was updated.
-        /// </summary>
-        public string UpdatedDate { get; set; }
-
-        /// <summary>
-        /// Returns true if the component is a multimedia (binary) component.
-        /// </summary>
-        public bool? MultiMedia { get; set; }
-    }
-
-    public class PageSitemapItem : ISitemapItem
-    {
-        /// <summary>
-        /// Identifies the unique ID of the node.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// Original title
-        /// </summary>
-        public string OriginalTitle { get; set; }
-
-        /// <summary>
-        /// The most recent date this item was published.
-        /// </summary>
-        public string PublishedDate { get; set; }
-
-        /// <summary>
-        /// Title
-        /// </summary>
-        public string Title { get; set; }
-
-        /// <summary>
-        /// Type
-        /// </summary>
-        public string Type { get; set; }
-
-        /// <summary>
-        /// URL
-        /// </summary>
-        public string Url { get; set; }
-
-        /// <summary>
-        /// Visible
-        /// </summary>
-        public bool? Visible { get; set; }
-    }
-
-    /// <summary>
-    /// Represents an Ambient Data Framework claim value.
-    /// </summary>
-    public class ClaimValue
-    {
-        /// <summary>
-        /// The claim value type.
-        /// </summary>
-        public ClaimValueType Type { get; set; }
-
-        /// <summary>
-        /// The claim URI.
-        /// </summary>
-        public string Uri { get; set; }
-
-        /// <summary>
-        /// The claim Value.
-        /// </summary>
-        public string Value { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a facet node.
-    /// </summary>
-    public interface IFacet
-    {
-        /// <summary>
-        /// Identifies the unique ID of the facet.
-        /// </summary>
-        string Id { get; set; }
-    }
-
-    /// <summary>
-    /// Faceted search results.
-    /// </summary>
-    public class FacetedSearchResults
-    {
-        /// <summary>
-        /// Facets.
-        /// </summary>
-        public List<ConceptFacet> Facets { get; set; }
-
-        /// <summary>
-        /// Search results.
-        /// </summary>
-        public SearchResultsConnection Results { get; set; }
-    }
-
-    /// <summary>
-    /// A connection to a list of items.
-    /// </summary>
-    public class SearchResultsConnection
-    {
-        /// <summary>
-        /// The total number of the hits
-        /// </summary>
-        public int? Hits { get; set; }
-
-        /// <summary>
-        /// a list of edges
-        /// </summary>
-        public List<SearchResultsEdge> Edges { get; set; }
-
-        /// <summary>
-        /// details about this specific page
-        /// </summary>
-        public PageInfo PageInfo { get; set; }
-    }
-
-    /// <summary>
-    /// An edge in a connection
-    /// </summary>
-    public class SearchResultsEdge
-    {
-        /// <summary>
-        /// The item at the end of the edge
-        /// </summary>
-        public SearchResults Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
-    }
-
-    /// <summary>
-    /// This is the search result response that contains results from search and broker database.
-    /// </summary>
-    public class SearchResults
-    {
-        /// <summary>
-        /// This is the results from broker database.
-        /// </summary>
-        public List<IItem> Broker { get; set; }
-
-        /// <summary>
-        /// This is the results from query service.
-        /// </summary>
-        public Search Search { get; set; }
-    }
-
-    public class Search
-    {
-        /// <summary>
-        /// The author of the search result.
-        /// </summary>
-        public string Author { get; set; }
-
-        /// <summary>
-        /// The author of the binary file.
-        /// </summary>
-        public string BinaryAuthor { get; set; }
-
-        /// <summary>
-        /// The binary content length of the search result.
-        /// </summary>
-        public long BinaryContentLength { get; set; }
-
-        /// <summary>
-        /// The binary content type of the search result.
-        /// </summary>
-        public string BinaryContentType { get; set; }
-
-        /// <summary>
-        /// The creation date of the binary file.
-        /// </summary>
-        public string BinaryCreatedDate { get; set; }
-
-        /// <summary>
-        /// The binary file name of the search result.
-        /// </summary>
-        public string BinaryFileName { get; set; }
-
-        /// <summary>
-        /// The language of the search result. (binary file)
-        /// </summary>
-        public string BinaryLanguage { get; set; }
-
-        /// <summary>
-        /// The title of binary file.
-        /// </summary>
-        public string BinaryTitle { get; set; }
-
-        /// <summary>
-        /// Concept schemes attached to a search result.
-        /// </summary>
-        public List<ConceptScheme> ConceptSchemes { get; set; }
-
-        /// <summary>
-        /// The creation date of the search result.
-        /// </summary>
-        public string CreatedDate { get; set; }
-
-        /// <summary>
-        /// A map of fields defined on the search result.
-        /// </summary>
-        public IDictionary Fields { get; set; }
-
-        /// <summary>
-        /// A map of highlighted search results.
-        /// </summary>
-        public IDictionary Highlighted { get; set; }
-
-        /// <summary>
-        /// The search result identifier.
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// The item type of the search result.
-        /// </summary>
-        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
-
-        /// <summary>
-        /// The locale of the search result.
-        /// </summary>
-        public string Locale { get; set; }
-
-        /// <summary>
-        /// The location of the search result.
-        /// </summary>
-        public string Location { get; set; }
-
-        /// <summary>
-        /// The content of the search result (indexed by locale).
-        /// </summary>
-        public string MainContentField { get; set; }
-
-        /// <summary>
-        /// The major version of the search result.
-        /// </summary>
-        public string MajorVersion { get; set; }
-
-        /// <summary>
-        /// The minor version of the search result.
-        /// </summary>
-        public string MinorVersion { get; set; }
-
-        /// <summary>
-        /// The updated date of the search result.
-        /// </summary>
-        public string ModifiedDate { get; set; }
-
-        /// <summary>
-        /// The namespace of the search result.
-        /// </summary>
-        public string Namespace { get; set; }
-
-        /// <summary>
-        /// The publication ID of the search result.
-        /// </summary>
-        public int? PublicationId { get; set; }
-
-        /// <summary>
-        /// The publication title of the search result.
-        /// </summary>
-        public string PublicationTitle { get; set; }
-
-        /// <summary>
-        /// The raw content of the search result.
-        /// </summary>
-        public string RawContent { get; set; }
-
-        /// <summary>
-        /// The title of the search result (indexed by locale).
-        /// </summary>
-        public string RawLanguageTitle { get; set; }
-
-        /// <summary>
-        /// The schema id of the search result.
-        /// </summary>
-        public string SchemaId { get; set; }
-
-        /// <summary>
-        /// Matching score of the result.
-        /// </summary>
-        public float Score { get; set; }
-
-        /// <summary>
-        /// The url of the search result.
-        /// </summary>
-        public string Url { get; set; }
     }
 
     public class Concept
@@ -3364,25 +718,635 @@ namespace Tridion.Dxa.Api.Client.ContentModel
     }
 
     /// <summary>
+    /// Represents a container for items.
+    /// </summary>
+    public interface IContainer
+    {
+        /// <summary>
+        /// Returns the items in this container.
+        /// </summary>
+        List<IItem> ContainerItems { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the type of container.
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ContainerType
+    {
+        COMPONENT_PRESENTATION
+    }
+
+    public interface IContent
+    {
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Identifies the type of the content.
+        /// </summary>
+        string Type { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a component which has content.
+    /// </summary>
+    public interface IContentComponent
+    {
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the schema ID for the component.
+        /// </summary>
+        int? SchemaId { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        List<ITaxonomyItem> Taxonomies { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns true if the component is a multimedia (binary) component.
+        /// </summary>
+        bool? MultiMedia { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum ContentFilterQueryType
+    {
+        CUSTOM_META
+    }
+
+    /// <summary>
+    /// Represents a fragment of content.
+    /// </summary>
+    public interface IContentFragment
+    {
+        /// <summary>
+        /// Returns the content of this fragment.
+        /// </summary>
+        IContent Content { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+    }
+
+    /// <summary>
+    /// The query root for the GraphQL Public Content API.
+    /// </summary>
+    public class ContentQuery
+    {
+        /// <summary>
+        /// Returns the binary component given its CM_URI (takes precedence over the other arguments).ONLY if CM_URI is not specified, the binary is identified by its namespaceId, publicationId and binaryId. Alternatively a binary variant URL can be used instead of a binary ID.
+        /// </summary>
+        public BinaryComponent BinaryComponent { get; set; }
+
+        /// <summary>
+        /// Resolve a link by parameters.
+        /// </summary>
+        public Link BinaryLink { get; set; }
+
+        /// <summary>
+        /// Returns the categories for the given namespace and publication IDs.
+        /// </summary>
+        public KeywordConnection Categories { get; set; }
+
+        /// <summary>
+        /// Returns a category given an ID or name for a given namespace and publication ID.
+        /// </summary>
+        public Keyword Category { get; set; }
+
+        /// <summary>
+        /// Returns the component given the namespace, publication, component IDs.
+        /// </summary>
+        public Component Component { get; set; }
+
+        /// <summary>
+        /// Resolve a link by parameters.
+        /// </summary>
+        public Link ComponentLink { get; set; }
+
+        /// <summary>
+        /// Returns the component presentation given the namespace, publication, component and template IDs.
+        /// </summary>
+        public ComponentPresentation ComponentPresentation { get; set; }
+
+        /// <summary>
+        /// Get a list of component presentations filtered by set of criteria.
+        /// </summary>
+        public ComponentPresentationConnection ComponentPresentations { get; set; }
+
+        /// <summary>
+        /// Resolve a link by parameters.
+        /// </summary>
+        public Link DynamicComponentLink { get; set; }
+
+        /// <summary>
+        /// Get a list of items filtered by set of criteria.
+        /// </summary>
+        public ItemConnection Items { get; set; }
+
+        /// <summary>
+        /// Returns the keyword for the given namespace, publication, category and keyword IDs.
+        /// </summary>
+        public Keyword Keyword { get; set; }
+
+        /// <summary>
+        /// Returns the page given its CM_URI. Takes precedence over the other arguments.ONLY If CM_URI is not specified, the page is identified by its namespaceId, publicationId and pageId. Alternatively a page URL can be used instead of a page ID.
+        /// </summary>
+        public Page Page { get; set; }
+
+        /// <summary>
+        /// Resolve a link by parameters.
+        /// </summary>
+        public Link PageLink { get; set; }
+
+        /// <summary>
+        /// Returns the list of pages matching the provided namespace ID and page URL.
+        /// </summary>
+        public PageConnection Pages { get; set; }
+
+        /// <summary>
+        /// Returns the publication given the specified namespace and publication IDs.
+        /// </summary>
+        public Publication Publication { get; set; }
+
+        /// <summary>
+        /// Returns the publication mapping given the specified namespace and site URL.
+        /// </summary>
+        public PublicationMapping PublicationMapping { get; set; }
+
+        /// <summary>
+        /// Returns the publication mappings for all publications or specified publication within the specified namespace.
+        /// </summary>
+        public PublicationMappingConnection PublicationMappings { get; set; }
+
+        /// <summary>
+        /// Returns the list of publications given the namespace ID and an optional filter.
+        /// </summary>
+        public PublicationConnection Publications { get; set; }
+
+        /// <summary>
+        /// Get navigation site map.
+        /// </summary>
+        public TaxonomySitemapItem Sitemap { get; set; }
+
+        /// <summary>
+        /// Get navigation site map subtree.
+        /// </summary>
+        public UntypedContent SitemapStructure { get; set; }
+
+        /// <summary>
+        /// Get navigation site map subtree.
+        /// </summary>
+        public List<TaxonomySitemapItem> SitemapSubtree { get; set; }
+
+        /// <summary>
+        /// Returns the structure group for the given namespace, publication and structure group IDs.
+        /// </summary>
+        public StructureGroup StructureGroup { get; set; }
+
+        /// <summary>
+        /// Returns the structure groups for the given namespace and publication IDs.
+        /// </summary>
+        public StructureGroupConnection StructureGroups { get; set; }
+
+        /// <summary>
+        /// Returns the typed component given the namespace, publication, component IDs.
+        /// </summary>
+        public IContentComponent TypedComponent { get; set; }
+
+        /// <summary>
+        /// Returns the typed page given its CM_URI. Takes precedence over the other arguments.ONLY If CM_URI is not specified, the page is identified by its namespaceId, publicationId and pageId. Alternatively a page URL can be used instead of a page ID.
+        /// </summary>
+        public IPageItem TypedPage { get; set; }
+
+        /// <summary>
+        /// Get ish publication given the specified publication Id.
+        /// </summary>
+        public IshPublication IshPublication { get; set; }
+
+        /// <summary>
+        /// Get list of ish publications.
+        /// </summary>
+        public IshPublicationConnection IshPublications { get; set; }
+
+        /// <summary>
+        /// Get TOC for a given publication.
+        /// </summary>
+        public IshToc IshToc { get; set; }
+
+        /// <summary>
+        /// Get TOC snippet for a given publication.
+        /// </summary>
+        public List<IshTocItem> IshTocSnippet { get; set; }
+
+        /// <summary>
+        /// Get TOC structure for a given publication.
+        /// </summary>
+        public UntypedContent IshTocStructure { get; set; }
+
+        /// <summary>
+        /// Get topic by Id or Url.
+        /// </summary>
+        //public IIshTopic IshTopic { get; set; }
+        public IshGenericTopic IshTopic { get; set; }
+        
+
+        /// <summary>
+        /// Get a list of topics matching filter.
+        /// </summary>
+        public IshTopicConnection IshTopics { get; set; }
+
+        /// <summary>
+        /// Get a list of topics matching filter.
+        /// </summary>
+        public List<IshTopicsByLogicalRef> IshTopicsByLogicalRefId { get; set; }
+
+        /// <summary>
+        /// Get External Item
+        /// </summary>
+        public IExternalItem ExternalItem { get; set; }
+
+
+        /// <summary>
+        /// A connection to an external item instance.
+        /// </summary>
+        /// <typeparam name="T">external item type</typeparam>
+        public class ExternalItemConnection<T>
+        {
+            /// <summary>
+            /// External item instance.
+            /// </summary>
+            public T ExternalItem { get; set; }
+        }
+
+        /// <summary>
+        /// Get External Items
+        /// </summary>
+        public ExternalItemConnection ExternalItems { get; set; }
+
+        /// <summary>
+        /// Get External Namespaces
+        /// </summary>
+        public List<ExternalNamespace> ExternalNamespaces { get; set; }
+
+        /// <summary>
+        /// Faceted search using a criteria.
+        /// </summary>
+        public FacetedSearchResults Search { get; set; }
+
+        /// <summary>
+        /// Suggest
+        /// </summary>
+        public ConceptSuggestionConnection Suggest { get; set; }
+
+        /// <summary>
+        /// Taxonomy search.
+        /// </summary>
+        public List<ConceptScheme> Taxonomy { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum CriteriaScope
+    {
+        /// <summary>
+        /// Publication
+        /// </summary>
+        Publication,
+
+        /// <summary>
+        /// Item
+        /// </summary>
+        Item,
+
+        ItemInPublication
+    }
+
+    /// <summary>
+    /// Represents custom metadata.
+    /// </summary>
+    public class CustomMeta
+    {
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID of the custom meta.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Identifies the key of the custom meta.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the custom meta.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the custom meta.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the value of the custom meta.
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        /// Identifies the value type of the custom meta.
+        /// </summary>
+        public CustomMetaValueType ValueType { get; set; }
+    }
+
+    /// <summary>
     /// A connection to a list of items.
     /// </summary>
-    public class TaxonomyRelatedConceptsConnection
+    public class CustomMetaConnection
     {
         /// <summary>
         /// a list of edges
         /// </summary>
-        public List<TaxonomyRelatedConceptsEdge> Edges { get; set; }
+        public List<CustomMetaEdge> Edges { get; set; }
     }
 
     /// <summary>
     /// An edge in a connection
     /// </summary>
-    public class TaxonomyRelatedConceptsEdge
+    public class CustomMetaEdge
     {
         /// <summary>
         /// The item at the end of the edge
         /// </summary>
-        public Concept Node { get; set; }
+        public CustomMeta Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum CustomMetaValueType
+    {
+        /// <summary>
+        /// STRING
+        /// </summary>
+        STRING,
+
+        /// <summary>
+        /// DATE
+        /// </summary>
+        DATE,
+
+        /// <summary>
+        /// FLOAT
+        /// </summary>
+        FLOAT,
+
+        /// <summary>
+        /// NUMBER
+        /// </summary>
+        NUMBER,
+
+        UNKNOWN
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DateRangeType
+    {
+        /// <summary>
+        /// CREATION_DATE
+        /// </summary>
+        CREATION_DATE,
+
+        /// <summary>
+        /// UPDATED_DATE
+        /// </summary>
+        UPDATED_DATE,
+
+        /// <summary>
+        /// INITIAL_PUBLISH_DATE
+        /// </summary>
+        INITIAL_PUBLISH_DATE,
+
+        LAST_PUBLISH_DATE
+    }
+
+    /// <summary>
+    /// External Identity
+    /// </summary>
+    public class ExternalIdentity
+    {
+        /// <summary>
+        /// Unique identity
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Locale ID
+        /// </summary>
+        public string LocaleId { get; set; }
+
+        /// <summary>
+        /// Namespace
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// Structure Type
+        /// </summary>
+        public StructureType StructureType { get; set; }
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public string Type { get; set; }
+    }
+
+    /// <summary>
+    /// External Item
+    /// </summary>
+    public interface IExternalItem
+    {
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Identity
+        /// </summary>
+        ExternalIdentity Identity { get; set; }
+
+        /// <summary>
+        /// Parent Identity
+        /// </summary>
+        ExternalIdentity ParentIdentity { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class ExternalItemConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<ExternalItemEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class ExternalItemEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public IExternalItem Node { get; set; }
 
         /// <summary>
         /// cursor marks a unique position or index into the connection
@@ -3391,83 +1355,735 @@ namespace Tridion.Dxa.Api.Client.ContentModel
     }
 
     /// <summary>
-    /// A connection to a list of items.
+    /// External Namespace
     /// </summary>
-    public class TaxonomyNarrowerConceptsConnection
+    public class ExternalNamespace
     {
         /// <summary>
-        /// a list of edges
+        /// entityTypes
         /// </summary>
-        public List<TaxonomyNarrowerConceptsEdge> Edges { get; set; }
+        public List<string> EntityTypes { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// namespace
+        /// </summary>
+        public string Namespace { get; set; }
     }
 
     /// <summary>
-    /// An edge in a connection
+    /// Represents a facet node.
     /// </summary>
-    public class TaxonomyNarrowerConceptsEdge
+    public interface IFacet
     {
         /// <summary>
-        /// The item at the end of the edge
+        /// Identifies the unique ID of the facet.
         /// </summary>
-        public Concept Node { get; set; }
-
-        /// <summary>
-        /// cursor marks a unique position or index into the connection
-        /// </summary>
-        public string Cursor { get; set; }
+        string Id { get; set; }
     }
 
     /// <summary>
-    /// A connection to a list of items.
+    /// Faceted search results.
     /// </summary>
-    public class TaxonomyTopConceptsSearchResultsConnection
+    public class FacetedSearchResults
     {
         /// <summary>
-        /// a list of edges
+        /// Facets.
         /// </summary>
-        public List<TaxonomyTopConceptsSearchResultsEdge> Edges { get; set; }
+        public List<IFacet> Facets { get; set; }
+
+        /// <summary>
+        /// Search results.
+        /// </summary>
+        public SearchResultsConnection Results { get; set; }
+    }
+
+    public class FieldValueAggregation
+    {
+        /// <summary>
+        /// Facet count
+        /// </summary>
+        public int? Count { get; set; }
+
+        /// <summary>
+        /// Facet value
+        /// </summary>
+        public string Value { get; set; }
     }
 
     /// <summary>
-    /// An edge in a connection
+    /// Represents a Field facet.
     /// </summary>
-    public class TaxonomyTopConceptsSearchResultsEdge
+    public class FieldValueFacet : IFacet
     {
         /// <summary>
-        /// The item at the end of the edge
+        /// Identifies the unique ID of the facet.
         /// </summary>
-        public Concept Node { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
-        /// cursor marks a unique position or index into the connection
+        /// Buckets.
         /// </summary>
-        public string Cursor { get; set; }
+        public List<FieldValueAggregation> Buckets { get; set; }
+
+        /// <summary>
+        /// Field.
+        /// </summary>
+        public string Field { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum FilterItemType
+    {
+        /// <summary>
+        /// PUBLICATION
+        /// </summary>
+        PUBLICATION,
+
+        /// <summary>
+        /// COMPONENT
+        /// </summary>
+        COMPONENT,
+
+        /// <summary>
+        /// COMPONENT_TEMPLATE
+        /// </summary>
+        COMPONENT_TEMPLATE,
+
+        /// <summary>
+        /// PAGE
+        /// </summary>
+        PAGE,
+
+        /// <summary>
+        /// PAGE_TEMPLATE
+        /// </summary>
+        PAGE_TEMPLATE,
+
+        /// <summary>
+        /// CATEGORY
+        /// </summary>
+        CATEGORY,
+
+        /// <summary>
+        /// KEYWORD
+        /// </summary>
+        KEYWORD,
+
+        CONTENT_PAGE,
+
+        ITEM_LIST,
+
+        MAIN_REGION,
+
+        ARTICLE
     }
 
     /// <summary>
-    /// Information about pagination in a connection.
+    /// Represents an Ambient Data Framework claim value.
     /// </summary>
-    public class PageInfo
+    public class InputClaimValue
     {
         /// <summary>
-        /// When paginating forwards, are there more items?
+        /// The claim value type.
         /// </summary>
-        public bool HasNextPage { get; set; }
+        public ClaimValueType Type { get; set; }
 
         /// <summary>
-        /// When paginating backwards, are there more items?
+        /// The claim URI.
         /// </summary>
-        public bool HasPreviousPage { get; set; }
+        public string Uri { get; set; }
 
         /// <summary>
-        /// When paginating backwards, the cursor to continue.
+        /// The claim Value.
         /// </summary>
-        public string StartCursor { get; set; }
+        public string Value { get; set; }
+    }
+
+    /// <summary>
+    /// Filter for the componentPresentation root query. When the filter is applied, only the component presentations matching the filter will be in the query result
+    /// </summary>
+    public class InputComponentPresentationFilter
+    {
+        /// <summary>
+        /// List of filters. Items in the query result will match ALL of the elements of the list
+        /// </summary>
+        public List<InputComponentPresentationFilter> And { get; set; }
+
+        public InputCustomMetaCriteria CustomMeta { get; set; }
+
+        public InputCustomMetaDateRangeCriteria CustomMetaDateRange { get; set; }
+
+        public InputDateRangeCriteriaImpl DateRange { get; set; }
+
+        public InputItemTemplateCriteria ItemTemplate { get; set; }
+
+        public InputKeywordCriteria Keyword { get; set; }
 
         /// <summary>
-        /// When paginating forwards, the cursor to continue.
+        /// List of filters. Items in the query result will match ANY of the elements of the list
         /// </summary>
-        public string EndCursor { get; set; }
+        public List<InputComponentPresentationFilter> Or { get; set; }
+
+        public InputSchemaCriteria Schema { get; set; }
+
+        public InputTemplateCriteria Template { get; set; }
+    }
+
+    public class InputConcept
+    {
+        /// <summary>
+        /// Concept IDs
+        /// </summary>
+        public List<string> ConceptIds { get; set; }
+
+        /// <summary>
+        /// Concept labels
+        /// </summary>
+        public List<string> ConceptLabels { get; set; }
+
+        /// <summary>
+        /// Namespace connector ID
+        /// </summary>
+        public string ConnectorId { get; set; }
+
+        /// <summary>
+        /// Language
+        /// </summary>
+        public string Language { get; set; }
+
+        /// <summary>
+        /// Concept scheme title
+        /// </summary>
+        public string SchemeTitle { get; set; }
+    }
+
+    /// <summary>
+    /// Concept Facet
+    /// </summary>
+    public class InputConceptFacet
+    {
+        /// <summary>
+        /// Concept scheme Title
+        /// </summary>
+        public string SchemeTitle { get; set; }
+
+        /// <summary>
+        /// Connector namespace Id.
+        /// </summary>
+        public string ConnectorId { get; set; }
+
+        /// <summary>
+        /// Maximum number of results per concept scheme. Pass -1 to retrieve all results.
+        /// </summary>
+        public int? First { get; set; }
+
+        /// <summary>
+        /// Language
+        /// </summary>
+        public string Language { get; set; }
+    }
+
+    /// <summary>
+    /// Input Concept Recommendation
+    /// </summary>
+    public class InputConceptRecommendation
+    {
+        /// <summary>
+        /// Boost factor for given concept scheme. Default value is 1.0
+        /// </summary>
+        public float BoostBy { get; set; }
+
+        /// <summary>
+        /// Parent level used when broadening the results with hierarchy for given concept scheme. Default value is 0, broadening will not happen. When value is 1 or higher, broadening will happen until given level.
+        /// </summary>
+        public int? BroadenBy { get; set; }
+
+        /// <summary>
+        /// When defined concept IDs will be used for recommendations
+        /// </summary>
+        public List<string> ConceptIds { get; set; }
+
+        /// <summary>
+        /// Namespace connector ID
+        /// </summary>
+        public string ConnectorId { get; set; }
+    }
+
+    public class InputCriteria
+    {
+        public List<InputCriteria> And { get; set; }
+
+        public InputConcept Concept { get; set; }
+
+        public InputField Field { get; set; }
+
+        public List<InputCriteria> GroupBy { get; set; }
+
+        public InputId Id { get; set; }
+
+        public InputFieldLanguage LanguageField { get; set; }
+
+        public InputLocaleField LocaleField { get; set; }
+
+        public InputFieldMetadata MetadataField { get; set; }
+
+        public List<InputCriteria> Or { get; set; }
+    }
+
+    public class InputCustomMetaCriteria
+    {
+        public string Key { get; set; }
+
+        /// <summary>
+        /// If not given, defaults to Item
+        /// </summary>
+        public CriteriaScope Scope { get; set; }
+
+        public string Value { get; set; }
+
+        public CustomMetaValueType ValueType { get; set; }
+    }
+
+    public class InputCustomMetaDateRangeCriteria
+    {
+        /// <summary>
+        /// End date & time
+        /// </summary>
+        public string End { get; set; }
+
+        /// <summary>
+        /// If true, the start and end dates are inclusive
+        /// </summary>
+        public bool? Inclusive { get; set; }
+
+        public string Key { get; set; }
+
+        /// <summary>
+        /// If not given, defaults to Item
+        /// </summary>
+        public CriteriaScope Scope { get; set; }
+
+        /// <summary>
+        /// Start date & time
+        /// </summary>
+        public string Start { get; set; }
+
+        public CustomMetaValueType ValueType { get; set; }
+    }
+
+    public class InputDateRangeCriteriaImpl
+    {
+        /// <summary>
+        /// End date & time
+        /// </summary>
+        public string End { get; set; }
+
+        /// <summary>
+        /// Start date & time
+        /// </summary>
+        public string Start { get; set; }
+
+        /// <summary>
+        /// Date range type
+        /// </summary>
+        public DateRangeType Type { get; set; }
+    }
+
+    /// <summary>
+    /// External Identity
+    /// </summary>
+    public class InputExternalIdentity
+    {
+        /// <summary>
+        /// Unique identity
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Locale ID
+        /// </summary>
+        public string LocaleId { get; set; }
+
+        /// <summary>
+        /// Namespace
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public string Type { get; set; }
+    }
+
+    /// <summary>
+    /// External Item Filter
+    /// </summary>
+    public class InputExternalItemFilter
+    {
+        /// <summary>
+        /// Context Identity
+        /// </summary>
+        public InputExternalIdentity Context { get; set; }
+
+        /// <summary>
+        /// Search Text
+        /// </summary>
+        public string SearchText { get; set; }
+
+        /// <summary>
+        /// Entity Type
+        /// </summary>
+        public string Type { get; set; }
+    }
+
+    /// <summary>
+    /// Input Facets
+    /// </summary>
+    public class InputFacets
+    {
+        /// <summary>
+        /// Concept facets
+        /// </summary>
+        public List<InputConceptFacet> Concepts { get; set; }
+
+        /// <summary>
+        /// Field Value facets
+        /// </summary>
+        public List<InputFieldValueFacet> Fields { get; set; }
+    }
+
+    public class InputField
+    {
+        /// <summary>
+        /// Boost factor for a Field. Default value is 1.0
+        /// </summary>
+        public float BoostBy { get; set; }
+
+        public string Key { get; set; }
+
+        public bool? Strict { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    public class InputFieldLanguage
+    {
+        /// <summary>
+        /// Boost factor for a FieldLanguage. Default value is 1.0
+        /// </summary>
+        public float BoostBy { get; set; }
+
+        public string Key { get; set; }
+
+        public string Language { get; set; }
+
+        public bool? Strict { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    public class InputFieldMetadata
+    {
+        public List<string> Keys { get; set; }
+
+        public bool? Strict { get; set; }
+
+        public MetadataFieldType Type { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    /// <summary>
+    /// Field Value Facet
+    /// </summary>
+    public class InputFieldValueFacet
+    {
+        /// <summary>
+        /// Maximum number of results per key. Pass -1 to retrieve all results.
+        /// </summary>
+        public int? First { get; set; }
+
+        /// <summary>
+        /// Key.
+        /// </summary>
+        public string Key { get; set; }
+    }
+
+    public class InputId
+    {
+        public List<string> Values { get; set; }
+    }
+
+    /// <summary>
+    /// Represents an ish condition.
+    /// </summary>
+    public class InputIshCondition
+    {
+        /// <summary>
+        /// The condition name.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The condition values.
+        /// </summary>
+        public List<string> Values { get; set; }
+    }
+
+    /// <summary>
+    /// Docs Item filter for the topics root query. When the filter is applied, only the items matching the filter will be in the query result
+    /// </summary>
+    public class InputIshItemFilter
+    {
+        /// <summary>
+        /// List of filters. Items in the query result will match ALL of the elements of the list
+        /// </summary>
+        public List<InputIshItemFilter> And { get; set; }
+
+        public InputCustomMetaCriteria CustomMeta { get; set; }
+
+        /// <summary>
+        /// List of filters. Items in the query result will match ANY of the elements of the list
+        /// </summary>
+        public List<InputIshItemFilter> Or { get; set; }
+
+        /// <summary>
+        /// list of publication IDs
+        /// </summary>
+        public List<int?> PublicationIds { get; set; }
+    }
+
+    /// <summary>
+    /// Item filter for the items root query. When the filter is applied, only the items matching the filter will be in the query result
+    /// </summary>
+    public class InputItemFilter
+    {
+        /// <summary>
+        /// List of filters. Items in the query result will match ALL of the elements of the list
+        /// </summary>
+        public List<InputItemFilter> And { get; set; }
+
+        public InputCustomMetaCriteria CustomMeta { get; set; }
+
+        public InputCustomMetaDateRangeCriteria CustomMetaDateRange { get; set; }
+
+        public InputItemTemplateCriteria ItemTemplate { get; set; }
+
+        public InputItemTitleCriteria ItemTitle { get; set; }
+
+        /// <summary>
+        /// list of item types to be selected
+        /// </summary>
+        public List<FilterItemType> ItemTypes { get; set; }
+
+        public InputKeywordCriteria Keyword { get; set; }
+
+        public InputMultimediaCriteria Multimedia { get; set; }
+
+        /// <summary>
+        /// list of namespace IDs
+        /// </summary>
+        public List<ContentNamespace> NamespaceIds { get; set; }
+
+        /// <summary>
+        /// List of filters. Items in the query result will match ANY of the elements of the list
+        /// </summary>
+        public List<InputItemFilter> Or { get; set; }
+
+        /// <summary>
+        /// list of publication IDs
+        /// </summary>
+        public List<int?> PublicationIds { get; set; }
+
+        public InputSchemaCriteria Schema { get; set; }
+
+        public InputTemplateCriteria Template { get; set; }
+    }
+
+    public class InputItemTemplateCriteria
+    {
+        /// <summary>
+        /// URI of the template.
+        /// </summary>
+        public string TemplateURI { get; set; }
+    }
+
+    public class InputItemTitleCriteria
+    {
+        /// <summary>
+        /// Item title.
+        /// </summary>
+        public string ItemTitle { get; set; }
+    }
+
+    public class InputKeywordCriteria
+    {
+        /// <summary>
+        /// Id of the category. Takes precedence over categoryName, if both are present
+        /// </summary>
+        public int? CategoryId { get; set; }
+
+        public string CategoryName { get; set; }
+
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Id of the keyword. Takes precedence over key, if both are present
+        /// </summary>
+        public int? KeywordId { get; set; }
+    }
+
+    public class InputLocaleField
+    {
+        public string Key { get; set; }
+
+        public string Locale { get; set; }
+
+        public string Value { get; set; }
+    }
+
+    public class InputMultimediaCriteria
+    {
+        /// <summary>
+        /// True if this criteria includes only multimedia components, false if it includes only normal components
+        /// </summary>
+        public bool Multimedia { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a filter for a publication query.
+    /// </summary>
+    public class InputPublicationFilter
+    {
+        /// <summary>
+        /// Represents the query type for the filter.
+        /// </summary>
+        public ContentFilterQueryType QueryType { get; set; }
+
+        /// <summary>
+        /// Represents the value to filter by in the form of 'key=value' pair.
+        /// </summary>
+        public string Value { get; set; }
+
+        /// <summary>
+        /// Represents the custom meta value type for the filter. UNKNOWN not supported. Defaults to 'String', if empty.
+        /// </summary>
+        public CustomMetaValueType ValueType { get; set; }
+    }
+
+    /// <summary>
+    /// Input parameter to enable recommendations
+    /// </summary>
+    public class InputRecommendation
+    {
+        /// <summary>
+        /// Recommend items for the given concepts
+        /// </summary>
+        public List<InputConceptRecommendation> Concepts { get; set; }
+
+        /// <summary>
+        /// Recommend items for the given item ID
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Recommendation mode
+        /// </summary>
+        public RecommendationMode Mode { get; set; }
+    }
+
+    /// <summary>
+    /// Filtering and highlighting the search results
+    /// </summary>
+    public class InputResultFilter
+    {
+        /// <summary>
+        /// Fields that will be excluded from results.
+        /// </summary>
+        public List<string> ExcludeFields { get; set; }
+
+        /// <summary>
+        /// Parameter to enable highlight in all.
+        /// </summary>
+        public bool? HighlightInAllIsEnabled { get; set; }
+
+        /// <summary>
+        /// Parameter to enable highlight.
+        /// </summary>
+        public bool? HighlightingIsEnabled { get; set; }
+    }
+
+    public class InputSchemaCriteria
+    {
+        /// <summary>
+        /// Id of the schema. Takes precedence over title, if both are present
+        /// </summary>
+        public int? Id { get; set; }
+
+        /// <summary>
+        /// Title of the schema. Applicable only for schemas related to dynamic component presentations.
+        /// </summary>
+        public string Title { get; set; }
+    }
+
+    /// <summary>
+    /// Sorting the search results
+    /// </summary>
+    public class InputSortBy
+    {
+        /// <summary>
+        /// Fields to sort.
+        /// </summary>
+        public List<string> Fields { get; set; }
+
+        /// <summary>
+        /// Sort values as text.
+        /// </summary>
+        public bool? SortAsText { get; set; }
+
+        /// <summary>
+        /// Sorting direction.
+        /// </summary>
+        public SortingDirectionType SortingDirection { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a typical sort type. When used, the default sorting mechanism (by namespace and by id) is overridden
+    /// </summary>
+    public class InputSortParam
+    {
+        /// <summary>
+        /// The custom meta key used for sorting. Mandatory only for SortOrderType.CUSTOM_META sort type.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// The custom meta key type used for sorting
+        /// </summary>
+        public MetadataType KeyType { get; set; }
+
+        /// <summary>
+        /// The sort order type.
+        /// </summary>
+        public SortOrderType Order { get; set; }
+
+        /// <summary>
+        /// The item field used for sorting
+        /// </summary>
+        public SortFieldType SortBy { get; set; }
+    }
+
+    public class InputTemplateCriteria
+    {
+        /// <summary>
+        /// Id of the template.
+        /// </summary>
+        public int? Id { get; set; }
     }
 
     /// <summary>
@@ -3536,6 +2152,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -3561,6 +2182,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -3569,6 +2195,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -3589,6 +2220,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -3704,6 +2345,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -3729,6 +2375,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -3737,6 +2388,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -3757,6 +2413,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -3856,6 +2522,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -3881,6 +2552,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -3889,6 +2565,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -3909,6 +2590,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -3987,6 +2678,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4012,6 +2708,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4020,6 +2721,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4040,6 +2746,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4108,6 +2824,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4133,6 +2854,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4141,6 +2867,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4161,6 +2892,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4275,6 +3016,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4300,6 +3046,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4308,6 +3059,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4328,6 +3084,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4442,6 +3208,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4467,6 +3238,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4475,6 +3251,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4495,6 +3276,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4609,6 +3400,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4634,6 +3430,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4642,6 +3443,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4662,6 +3468,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4776,6 +3592,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -4801,6 +3622,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -4809,6 +3635,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -4829,6 +3660,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -4877,7 +3718,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public string Xhtml { get; set; }
     }
 
-    public class IshPublication
+    public class IshPublication : IItem
     {
         /// <summary>
         /// Get conditions for the publication.
@@ -4925,6 +3766,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public string LastPublishDate { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshPublicationMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Returns the multimedia path for the publication.
         /// </summary>
         public string MultimediaPath { get; set; }
@@ -4963,6 +3809,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the publication URL.
         /// </summary>
         public string PublicationUrl { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
 
         /// <summary>
         /// Returns the title of the item.
@@ -5005,79 +3856,44 @@ namespace Tridion.Dxa.Api.Client.ContentModel
     public class IshPublicationMetadata
     {
         /// <summary>
-        /// Changes
+        /// Created On
         /// </summary>
-        public string Changes { get; set; }
+        public string CreatedOn { get; set; }
 
         /// <summary>
-        /// Description
+        /// Locale
         /// </summary>
-        public string Description { get; set; }
+        public string Locale { get; set; }
 
         /// <summary>
-        /// Document Languages
+        /// Logical Ref
         /// </summary>
-        public List<string> DocLanguages { get; set; }
+        public string LogicalRef { get; set; }
 
         /// <summary>
-        /// Language Card Id
+        /// Modified On
         /// </summary>
-        public int? LanguageCardId { get; set; }
+        public string ModifiedOn { get; set; }
 
         /// <summary>
-        /// Logical Ref Id
+        /// Online Status
         /// </summary>
-        public int? LogicalRefId { get; set; }
+        public string OnlineStatus { get; set; }
 
         /// <summary>
-        /// Product Family Name
+        /// Product Families
         /// </summary>
-        public string ProductFamilyName { get; set; }
+        public List<string> ProductFamilies { get; set; }
 
         /// <summary>
-        /// Product Release Labels
+        /// Product Releases
         /// </summary>
-        public List<string> ProductReleaseLabels { get; set; }
-
-        /// <summary>
-        /// Product Release Name
-        /// </summary>
-        public string ProductReleaseName { get; set; }
-
-        /// <summary>
-        /// Publication Source Languages
-        /// </summary>
-        public List<string> PublicationSourceLanguages { get; set; }
-
-        /// <summary>
-        /// Publication Title
-        /// </summary>
-        public string PublicationTitle { get; set; }
-
-        /// <summary>
-        /// Document Language
-        /// </summary>
-        public string Publisher { get; set; }
-
-        /// <summary>
-        /// Read Access
-        /// </summary>
-        public List<string> ReadAccess { get; set; }
-
-        /// <summary>
-        /// Publication Status
-        /// </summary>
-        public string Status { get; set; }
+        public List<string> ProductReleases { get; set; }
 
         /// <summary>
         /// Title
         /// </summary>
         public string Title { get; set; }
-
-        /// <summary>
-        /// User Groups
-        /// </summary>
-        public List<string> UserGroups { get; set; }
 
         /// <summary>
         /// Version
@@ -5151,6 +3967,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -5176,6 +3997,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -5184,6 +4010,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -5204,6 +4035,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -5303,6 +4144,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        public IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         public ContentNamespace NamespaceId { get; set; }
@@ -5328,6 +4174,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         public IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         public string ShortDescription { get; set; }
@@ -5336,6 +4187,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         public string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        public List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -5356,6 +4212,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         public string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        public IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        public List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -5537,6 +4403,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         List<IshTopicLink> Links { get; set; }
 
         /// <summary>
+        /// Metadata
+        /// </summary>
+        IshTopicMetadata Metadata { get; set; }
+
+        /// <summary>
         /// Identifies the namespace ID of the item.
         /// </summary>
         ContentNamespace NamespaceId { get; set; }
@@ -5562,6 +4433,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         IshTopicRelatedLinks RelatedLinks { get; set; }
 
         /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
         /// Topic short description
         /// </summary>
         string ShortDescription { get; set; }
@@ -5570,6 +4446,11 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Returns the title of the item.
         /// </summary>
         string Title { get; set; }
+
+        /// <summary>
+        /// Retrieve all topics that share the same topic ref
+        /// </summary>
+        List<IshTopicsByLogicalRef> TopicsWithSameLogicalRef { get; set; }
 
         /// <summary>
         /// Returns the date the item was updated.
@@ -5590,6 +4471,16 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// Topic XHTML
         /// </summary>
         string Xhtml { get; set; }
+
+        /// <summary>
+        /// Get publication of this topic.
+        /// </summary>
+        IshPublication Publication { get; set; }
+
+        /// <summary>
+        /// Get all publication this topic appears within.
+        /// </summary>
+        List<IshPublication> Publications { get; set; }
     }
 
     /// <summary>
@@ -5611,7 +4502,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// <summary>
         /// The item at the end of the edge
         /// </summary>
-        public IshGenericTopic Node { get; set; }
+        public IIshTopic Node { get; set; }
 
         /// <summary>
         /// cursor marks a unique position or index into the connection
@@ -5656,6 +4547,79 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         ABSOLUTE,
 
         RELATIVE
+    }
+
+    public class IshTopicMetadata
+    {
+        /// <summary>
+        /// Created On
+        /// </summary>
+        public string CreatedOn { get; set; }
+
+        /// <summary>
+        /// Locale
+        /// </summary>
+        public string Locale { get; set; }
+
+        /// <summary>
+        /// Locales
+        /// </summary>
+        public List<string> Locales { get; set; }
+
+        /// <summary>
+        /// Logical Ref
+        /// </summary>
+        public string LogicalRef { get; set; }
+
+        /// <summary>
+        /// Modified On
+        /// </summary>
+        public string ModifiedOn { get; set; }
+
+        /// <summary>
+        /// Online Status
+        /// </summary>
+        public string OnlineStatus { get; set; }
+
+        /// <summary>
+        /// Product Families
+        /// </summary>
+        public List<string> ProductFamilies { get; set; }
+
+        /// <summary>
+        /// Product Family
+        /// </summary>
+        public string ProductFamily { get; set; }
+
+        /// <summary>
+        /// Product Release
+        /// </summary>
+        public string ProductRelease { get; set; }
+
+        /// <summary>
+        /// Product Releases
+        /// </summary>
+        public List<string> ProductReleases { get; set; }
+
+        /// <summary>
+        /// Publication Title
+        /// </summary>
+        public string PublicationTitle { get; set; }
+
+        /// <summary>
+        /// Publication Titles
+        /// </summary>
+        public List<string> PublicationTitles { get; set; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Version
+        /// </summary>
+        public string Version { get; set; }
     }
 
     public class IshTopicRelatedLinks
@@ -5716,6 +4680,2533 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// XHTML
         /// </summary>
         public string Xhtml { get; set; }
+    }
+
+    public class IshTopicsByLogicalRef
+    {
+        /// <summary>
+        /// Identifies the topic ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the topic.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the full topic.
+        /// </summary>
+        public IIshTopic Topic { get; set; }
+
+        /// <summary>
+        /// Returns the title of the topic.
+        /// </summary>
+        public string TopicTitle { get; set; }
+
+        /// <summary>
+        /// Returns the url of the topic.
+        /// </summary>
+        public string Url { get; set; }
+    }
+
+    /// <summary>
+    /// Represents an item. The root of all content models.
+    /// </summary>
+    public interface IItem
+    {
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class ItemConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<ItemEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class ItemEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public IItem Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Item List
+    /// </summary>
+    public class ItemList : IContentComponent, ITaggable, IItem
+    {
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Strongly typed metadata.
+        /// </summary>
+        public ItemList_Metadata Metadata { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the content of the component.
+        /// </summary>
+        public IContent Content { get; set; }
+
+        /// <summary>
+        /// Resolve component link to a page.
+        /// </summary>
+        public Link ResolvedLink { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Items
+        /// </summary>
+        public List<ItemList_ItemListElement> ItemListElement { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        public List<ITaxonomyItem> Taxonomies { get; set; }
+
+        /// <summary>
+        /// Returns the schema ID for the component.
+        /// </summary>
+        public int? SchemaId { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns true if the component is a multimedia (binary) component.
+        /// </summary>
+        public bool? MultiMedia { get; set; }
+
+        /// <summary>
+        /// Heading
+        /// </summary>
+        public string Headline { get; set; }
+    }
+
+    /// <summary>
+    /// Items
+    /// </summary>
+    public class ItemList_ItemListElement
+    {
+        /// <summary>
+        /// Subheading
+        /// </summary>
+        public string Subheading { get; set; }
+
+        /// <summary>
+        /// Content
+        /// </summary>
+        public Rtf Content { get; set; }
+
+        /// <summary>
+        /// Media
+        /// </summary>
+        public IContentComponent Media { get; set; }
+
+        /// <summary>
+        /// Link
+        /// </summary>
+        public ItemList_Link Link { get; set; }
+    }
+
+    /// <summary>
+    /// Link
+    /// </summary>
+    public class ItemList_Link
+    {
+        /// <summary>
+        /// Link Text
+        /// </summary>
+        public string LinkText { get; set; }
+
+        /// <summary>
+        /// External Link
+        /// </summary>
+        public string ExternalLink { get; set; }
+
+        /// <summary>
+        /// -- OR -- Internal Link
+        /// </summary>
+        public IContentComponent InternalLink { get; set; }
+
+        /// <summary>
+        /// Alternate Text
+        /// </summary>
+        public string AlternateText { get; set; }
+    }
+
+    /// <summary>
+    /// Metadata fields for ItemList
+    /// </summary>
+    public class ItemList_Metadata
+    {
+        /// <summary>
+        /// Standard Metadata
+        /// </summary>
+        public ItemList_StandardMetadata StandardMeta { get; set; }
+    }
+
+    /// <summary>
+    /// Standard Metadata
+    /// </summary>
+    public class ItemList_StandardMetadata
+    {
+        /// <summary>
+        /// Date Created
+        /// </summary>
+        public string DateCreated { get; set; }
+
+        /// <summary>
+        /// Meta Description (for search engines)
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Short Title (used in navigation, teasers etc.)
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Intro Text (not shown in the full article, used in summaries, teasers etc.)
+        /// </summary>
+        public string IntroText { get; set; }
+
+        /// <summary>
+        /// Author name
+        /// </summary>
+        public string Author { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a keyword taxonomy item.
+    /// </summary>
+    public class Keyword : ITaxonomyItem, IItem
+    {
+        /// <summary>
+        /// Returns the child taxonomies for the taxonomy.
+        /// </summary>
+        public TaxonomyItemConnection Children { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the depth (level) of the taxonomy.
+        /// </summary>
+        public int? Depth { get; set; }
+
+        /// <summary>
+        /// Returns the description of the keyword.
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the key of the taxonomy.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the keyword.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the parent taxonomy of the taxonomy.
+        /// </summary>
+        public ITaxonomyItem Parent { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Identifies the ID of the taxonomy.
+        /// </summary>
+        public int TaxonomyId { get; set; }
+
+        /// <summary>
+        /// Identifies the type of the taxonomy.
+        /// </summary>
+        public TaxonomyType TaxonomyType { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns total number of related items.
+        /// </summary>
+        public int? TotalRelatedItems { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy has child taxonomies.
+        /// </summary>
+        public bool? HasChildren { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is abstract.
+        /// </summary>
+        public bool? Abstract { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is navigable.
+        /// </summary>
+        public bool? Navigable { get; set; }
+
+        /// <summary>
+        /// Returns true if the keyword is used for identification.
+        /// </summary>
+        public bool? UsedForIdentification { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class KeywordConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<KeywordEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class KeywordEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Keyword Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a Link.
+    /// </summary>
+    public class Link
+    {
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Link type.
+        /// </summary>
+        public LinkType Type { get; set; }
+
+        /// <summary>
+        /// Link url.
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Returns the typed page for the link url.
+        /// </summary>
+        public IPageItem Page { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the type of link.
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum LinkType
+    {
+        /// <summary>
+        /// A page link.
+        /// </summary>
+        PAGE,
+
+        /// <summary>
+        /// A component link.
+        /// </summary>
+        COMPONENT,
+
+        /// <summary>
+        /// A binary link.
+        /// </summary>
+        BINARY,
+
+        DYNAMIC_COMPONENT
+    }
+
+    /// <summary>
+    /// [Main] Region
+    /// </summary>
+    public class MainRegion : IPageItem, IContainer, ITaggable, IItem, IPageRegion
+    {
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the list of components in region.
+        /// </summary>
+        public List<IContentComponent> Components { get; set; }
+
+        /// <summary>
+        /// Returns the file name path to the page.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the regions for the page.
+        /// </summary>
+        public List<IPageRegion> Regions { get; set; }
+
+        /// <summary>
+        /// Returns the template for the page.
+        /// </summary>
+        public Template PageTemplate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the region. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the content in the page.
+        /// </summary>
+        public IContent Content { get; set; }
+
+        /// <summary>
+        /// Identifies the URL of the page.
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Returns the raw content in the page.
+        /// </summary>
+        public RawContent RawContent { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the items in this container.
+        /// </summary>
+        public List<IItem> ContainerItems { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        public List<ITaxonomyItem> Taxonomies { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the region.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+    }
+
+    /// <summary>
+    /// Represents the type of mapping strategy used.
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum MappingStrategyType
+    {
+        /// <summary>
+        /// Resolve based on using cd_dynamic configuration static mappings.
+        /// </summary>
+        STATIC,
+
+        /// <summary>
+        /// Resolve based on storage values of specific publication properties in Publication table.
+        /// </summary>
+        STORAGE,
+
+        /// <summary>
+        /// Dynamically matches publication properties against values in Publication DB table.
+        /// </summary>
+        DYNAMIC_STORAGE,
+
+        METADATA
+    }
+
+    /// <summary>
+    /// To define the metadata field type
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum MetadataFieldType
+    {
+        /// <summary>
+        /// ANY
+        /// </summary>
+        ANY,
+
+        /// <summary>
+        /// DATE
+        /// </summary>
+        DATE,
+
+        /// <summary>
+        /// DOUBLE
+        /// </summary>
+        DOUBLE,
+
+        /// <summary>
+        /// LONG
+        /// </summary>
+        LONG,
+
+        TEXT
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum MetadataType
+    {
+        /// <summary>
+        /// STRING
+        /// </summary>
+        STRING,
+
+        /// <summary>
+        /// DATE
+        /// </summary>
+        DATE,
+
+        FLOAT
+    }
+
+    /// <summary>
+    /// Represents a page.
+    /// </summary>
+    public class Page : IPageItem, IContainer, ITaggable, IItem, IPageRegion
+    {
+        /// <summary>
+        /// Returns the list of components in region.
+        /// </summary>
+        public List<IContentComponent> Components { get; set; }
+
+        /// <summary>
+        /// Returns the items in this container.
+        /// </summary>
+        public List<IItem> ContainerItems { get; set; }
+
+        /// <summary>
+        /// Returns the content in the page.
+        /// </summary>
+        public IContent Content { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the region. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the file name path to the page.
+        /// </summary>
+        public string FileName { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the region.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the template for the page.
+        /// </summary>
+        public Template PageTemplate { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the raw content in the page.
+        /// </summary>
+        public RawContent RawContent { get; set; }
+
+        /// <summary>
+        /// Returns the regions for the page.
+        /// </summary>
+        public List<IPageRegion> Regions { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        public List<ITaxonomyItem> Taxonomies { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Identifies the URL of the page.
+        /// </summary>
+        public string Url { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class PageConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<PageEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class PageEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Page Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Information about pagination in a connection.
+    /// </summary>
+    public class PageInfo
+    {
+        /// <summary>
+        /// When paginating forwards, are there more items?
+        /// </summary>
+        public bool HasNextPage { get; set; }
+
+        /// <summary>
+        /// When paginating backwards, are there more items?
+        /// </summary>
+        public bool HasPreviousPage { get; set; }
+
+        /// <summary>
+        /// When paginating backwards, the cursor to continue.
+        /// </summary>
+        public string StartCursor { get; set; }
+
+        /// <summary>
+        /// When paginating forwards, the cursor to continue.
+        /// </summary>
+        public string EndCursor { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a page item. The root of all page models.
+    /// </summary>
+    public interface IPageItem
+    {
+        /// <summary>
+        /// Returns the list of components in region.
+        /// </summary>
+        List<IContentComponent> Components { get; set; }
+
+        /// <summary>
+        /// Returns the items in this container.
+        /// </summary>
+        List<IItem> ContainerItems { get; set; }
+
+        /// <summary>
+        /// Returns the content in the page.
+        /// </summary>
+        IContent Content { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the region. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the file name path to the page.
+        /// </summary>
+        string FileName { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the region.
+        /// </summary>
+        string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the template for the page.
+        /// </summary>
+        Template PageTemplate { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the raw content in the page.
+        /// </summary>
+        RawContent RawContent { get; set; }
+
+        /// <summary>
+        /// Returns the regions for the page.
+        /// </summary>
+        List<IPageRegion> Regions { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        List<ITaxonomyItem> Taxonomies { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Identifies the URL of the page.
+        /// </summary>
+        string Url { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a page region.
+    /// </summary>
+    public interface IPageRegion
+    {
+        /// <summary>
+        /// Returns the list of components in region.
+        /// </summary>
+        List<IContentComponent> Components { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the region. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the region.
+        /// </summary>
+        string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the regions for the page.
+        /// </summary>
+        List<IPageRegion> Regions { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+    }
+
+    public class PageSitemapItem : ISitemapItem
+    {
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Original title
+        /// </summary>
+        public string OriginalTitle { get; set; }
+
+        /// <summary>
+        /// The most recent date this item was published.
+        /// </summary>
+        public string PublishedDate { get; set; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Visible
+        /// </summary>
+        public bool? Visible { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a publication.
+    /// </summary>
+    public class Publication : IItem
+    {
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the multimedia path for the publication.
+        /// </summary>
+        public string MultimediaPath { get; set; }
+
+        /// <summary>
+        /// Returns the multimedia URL for the publication.
+        /// </summary>
+        public string MultimediaUrl { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the publication key.
+        /// </summary>
+        public string PublicationKey { get; set; }
+
+        /// <summary>
+        /// Returns the publication path.
+        /// </summary>
+        public string PublicationPath { get; set; }
+
+        /// <summary>
+        /// Returns the publication URL.
+        /// </summary>
+        public string PublicationUrl { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class PublicationConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<PublicationEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class PublicationEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Publication Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a publication mapping.
+    /// </summary>
+    public class PublicationMapping
+    {
+        /// <summary>
+        /// Returns the domain.
+        /// </summary>
+        public string Domain { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the path.
+        /// </summary>
+        public string Path { get; set; }
+
+        /// <summary>
+        /// Returns the scan depth.
+        /// </summary>
+        public int? PathScanDepth { get; set; }
+
+        /// <summary>
+        /// Returns the port.
+        /// </summary>
+        public string Port { get; set; }
+
+        /// <summary>
+        /// Returns the protocol.
+        /// </summary>
+        public string Protocol { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class PublicationMappingConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<PublicationMappingEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class PublicationMappingEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public PublicationMapping Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Represents an item with content.
+    /// </summary>
+    public class RawContent
+    {
+        /// <summary>
+        /// Returns the character set encoding of the string content.
+        /// </summary>
+        public string CharSet { get; set; }
+
+        /// <summary>
+        /// Returns the string content.
+        /// </summary>
+        public string Content { get; set; }
+
+        /// <summary>
+        /// Return content data
+        /// </summary>
+        public IDictionary Data { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum RecommendationMode
+    {
+        /// <summary>
+        /// semantic
+        /// </summary>
+        Semantic,
+
+        Smart
+    }
+
+    /// <summary>
+    /// Represents Rich Text
+    /// </summary>
+    public class Rtf
+    {
+        /// <summary>
+        /// Returns the content fragments.
+        /// </summary>
+        public List<IRtfFragment> Fragments { get; set; }
+
+        /// <summary>
+        /// Returns the html content.
+        /// </summary>
+        public string Html { get; set; }
+    }
+
+    public class RtfComponentLinkFragment : IRtfFragment
+    {
+        /// <summary>
+        /// Linked Component
+        /// </summary>
+        public IContentComponent Component { get; set; }
+
+        /// <summary>
+        /// Html Fragment
+        /// </summary>
+        public string Html { get; set; }
+    }
+
+    public interface IRtfFragment
+    {
+        /// <summary>
+        /// Html Fragment
+        /// </summary>
+        string Html { get; set; }
+    }
+
+    public class RtfHtmlFragment : IRtfFragment
+    {
+        /// <summary>
+        /// Html Fragment
+        /// </summary>
+        public string Html { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a schema.
+    /// </summary>
+    public class Schema
+    {
+        /// <summary>
+        /// Return content data
+        /// </summary>
+        public IDictionary Content { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int? PublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int? SchemaId { get; set; }
+
+        /// <summary>
+        /// Returns the title of the schema.
+        /// </summary>
+        public string Title { get; set; }
+    }
+
+    public class Search
+    {
+        /// <summary>
+        /// The author of the search result.
+        /// </summary>
+        public string Author { get; set; }
+
+        /// <summary>
+        /// The author of the binary file.
+        /// </summary>
+        public string BinaryAuthor { get; set; }
+
+        /// <summary>
+        /// The binary content length of the search result.
+        /// </summary>
+        public long BinaryContentLength { get; set; }
+
+        /// <summary>
+        /// The binary content type of the search result.
+        /// </summary>
+        public string BinaryContentType { get; set; }
+
+        /// <summary>
+        /// The creation date of the binary file.
+        /// </summary>
+        public string BinaryCreatedDate { get; set; }
+
+        /// <summary>
+        /// The binary file name of the search result.
+        /// </summary>
+        public string BinaryFileName { get; set; }
+
+        /// <summary>
+        /// The language of the search result. (binary file)
+        /// </summary>
+        public string BinaryLanguage { get; set; }
+
+        /// <summary>
+        /// The title of binary file.
+        /// </summary>
+        public string BinaryTitle { get; set; }
+
+        /// <summary>
+        /// Concept schemes attached to a search result.
+        /// </summary>
+        public List<ConceptScheme> ConceptSchemes { get; set; }
+
+        /// <summary>
+        /// The creation date of the search result.
+        /// </summary>
+        public string CreatedDate { get; set; }
+
+        /// <summary>
+        /// A map of fields defined on the search result.
+        /// </summary>
+        public IDictionary Fields { get; set; }
+
+        /// <summary>
+        /// A map of highlighted search results.
+        /// </summary>
+        public IDictionary Highlighted { get; set; }
+
+        /// <summary>
+        /// The search result identifier.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// The item type of the search result.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// The locale of the search result.
+        /// </summary>
+        public string Locale { get; set; }
+
+        /// <summary>
+        /// The location of the search result.
+        /// </summary>
+        public string Location { get; set; }
+
+        /// <summary>
+        /// The content of the search result (indexed by locale).
+        /// </summary>
+        public string MainContentField { get; set; }
+
+        /// <summary>
+        /// The major version of the search result.
+        /// </summary>
+        public string MajorVersion { get; set; }
+
+        /// <summary>
+        /// The minor version of the search result.
+        /// </summary>
+        public string MinorVersion { get; set; }
+
+        /// <summary>
+        /// The updated date of the search result.
+        /// </summary>
+        public string ModifiedDate { get; set; }
+
+        /// <summary>
+        /// The namespace of the search result.
+        /// </summary>
+        public string Namespace { get; set; }
+
+        /// <summary>
+        /// The publication ID of the search result.
+        /// </summary>
+        public int? PublicationId { get; set; }
+
+        /// <summary>
+        /// The publication title of the search result.
+        /// </summary>
+        public string PublicationTitle { get; set; }
+
+        /// <summary>
+        /// The raw content of the search result.
+        /// </summary>
+        public string RawContent { get; set; }
+
+        /// <summary>
+        /// The title of the search result (indexed by locale).
+        /// </summary>
+        public string RawLanguageTitle { get; set; }
+
+        /// <summary>
+        /// The schema id of the search result.
+        /// </summary>
+        public string SchemaId { get; set; }
+
+        /// <summary>
+        /// Matching score of the result.
+        /// </summary>
+        public float Score { get; set; }
+
+        /// <summary>
+        /// The title of the search result containing no tags (indexed by locale).
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// The url of the search result.
+        /// </summary>
+        public string Url { get; set; }
+    }
+
+    /// <summary>
+    /// This is the search result response that contains results from search and broker database.
+    /// </summary>
+    public class SearchResults
+    {
+        /// <summary>
+        /// This is the results from broker database.
+        /// </summary>
+        public List<IItem> Broker { get; set; }
+
+        /// <summary>
+        /// This is the results from query service.
+        /// </summary>
+        public Search Search { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class SearchResultsConnection
+    {
+        /// <summary>
+        /// The total number of the hits
+        /// </summary>
+        public int? Hits { get; set; }
+
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<SearchResultsEdge> Edges { get; set; }
+
+        /// <summary>
+        /// details about this specific page
+        /// </summary>
+        public PageInfo PageInfo { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class SearchResultsEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public SearchResults Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// Sitemap Item
+    /// </summary>
+    public interface ISitemapItem
+    {
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Original title
+        /// </summary>
+        string OriginalTitle { get; set; }
+
+        /// <summary>
+        /// The most recent date this item was published.
+        /// </summary>
+        string PublishedDate { get; set; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        string Type { get; set; }
+
+        /// <summary>
+        /// URL
+        /// </summary>
+        string Url { get; set; }
+
+        /// <summary>
+        /// Visible
+        /// </summary>
+        bool? Visible { get; set; }
+    }
+
+    /// <summary>
+    /// These are the fields that allow sorting
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum SortFieldType
+    {
+        /// <summary>
+        /// CREATION_DATE
+        /// </summary>
+        CREATION_DATE,
+
+        /// <summary>
+        /// INITIAL_PUBLISH_DATE
+        /// </summary>
+        INITIAL_PUBLISH_DATE,
+
+        /// <summary>
+        /// ITEM_ID
+        /// </summary>
+        ITEM_ID,
+
+        /// <summary>
+        /// ITEM_TYPE
+        /// </summary>
+        ITEM_TYPE,
+
+        /// <summary>
+        /// LAST_PUBLISH_DATE
+        /// </summary>
+        LAST_PUBLISH_DATE,
+
+        /// <summary>
+        /// NAMESPACE_ID
+        /// </summary>
+        NAMESPACE_ID,
+
+        /// <summary>
+        /// OWNING_PUBLICATION_ID
+        /// </summary>
+        OWNING_PUBLICATION_ID,
+
+        /// <summary>
+        /// PUBLICATION_ID
+        /// </summary>
+        PUBLICATION_ID,
+
+        /// <summary>
+        /// TITLE
+        /// </summary>
+        TITLE,
+
+        /// <summary>
+        /// UPDATED_DATE
+        /// </summary>
+        UPDATED_DATE,
+
+        CUSTOM_META
+    }
+
+    /// <summary>
+    /// Represents a type of natural sort: descending or ascending
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum SortOrderType
+    {
+        /// <summary>
+        /// A string value
+        /// </summary>
+        Ascending,
+
+        Descending
+    }
+
+    /// <summary>
+    /// Sorting direction of results
+    /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum SortingDirectionType
+    {
+        /// <summary>
+        /// ASCENDING
+        /// </summary>
+        ASCENDING,
+
+        DESCENDING
+    }
+
+    /// <summary>
+    /// Represents a structure group.
+    /// </summary>
+    public class StructureGroup : ITaxonomyItem, IItem
+    {
+        /// <summary>
+        /// Returns the child taxonomies for the taxonomy.
+        /// </summary>
+        public TaxonomyItemConnection Children { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the depth (level) of the taxonomy.
+        /// </summary>
+        public int? Depth { get; set; }
+
+        /// <summary>
+        /// Returns the directory of the structure group.
+        /// </summary>
+        public string Directory { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the key of the taxonomy.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the parent taxonomy of the taxonomy.
+        /// </summary>
+        public ITaxonomyItem Parent { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Identifies the ID of the taxonomy.
+        /// </summary>
+        public int TaxonomyId { get; set; }
+
+        /// <summary>
+        /// Identifies the type of the taxonomy.
+        /// </summary>
+        public TaxonomyType TaxonomyType { get; set; }
+
+        /// <summary>
+        /// Returns the title of the structure group.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy has child taxonomies.
+        /// </summary>
+        public bool? HasChildren { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is abstract.
+        /// </summary>
+        public bool? Abstract { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is navigable.
+        /// </summary>
+        public bool? Navigable { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class StructureGroupConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<StructureGroupEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class StructureGroupEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public StructureGroup Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum StructureType
+    {
+        /// <summary>
+        /// Root
+        /// </summary>
+        Root,
+
+        /// <summary>
+        /// Container
+        /// </summary>
+        Container,
+
+        Leaf
+    }
+
+    /// <summary>
+    /// Represents a related set of entities.
+    /// </summary>
+    public interface ITaggable
+    {
+        /// <summary>
+        /// Returns the list of taxonomies for the item.
+        /// </summary>
+        List<ITaxonomyItem> Taxonomies { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a taxonomy item.
+    /// </summary>
+    public interface ITaxonomyItem
+    {
+        /// <summary>
+        /// Returns the child taxonomies for the taxonomy.
+        /// </summary>
+        TaxonomyItemConnection Children { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Returns the depth (level) of the taxonomy.
+        /// </summary>
+        int? Depth { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the key of the taxonomy.
+        /// </summary>
+        string Key { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the parent taxonomy of the taxonomy.
+        /// </summary>
+        ITaxonomyItem Parent { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        Schema Schema { get; set; }
+
+        /// <summary>
+        /// Identifies the ID of the taxonomy.
+        /// </summary>
+        int TaxonomyId { get; set; }
+
+        /// <summary>
+        /// Identifies the type of the taxonomy.
+        /// </summary>
+        TaxonomyType TaxonomyType { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        string UpdatedDate { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy has child taxonomies.
+        /// </summary>
+        bool? HasChildren { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is abstract.
+        /// </summary>
+        bool? Abstract { get; set; }
+
+        /// <summary>
+        /// Returns true if the taxonomy is navigable.
+        /// </summary>
+        bool? Navigable { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class TaxonomyItemConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<TaxonomyItemEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class TaxonomyItemEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public ITaxonomyItem Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class TaxonomyNarrowerConceptsConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<TaxonomyNarrowerConceptsEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class TaxonomyNarrowerConceptsEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Concept Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class TaxonomyRelatedConceptsConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<TaxonomyRelatedConceptsEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class TaxonomyRelatedConceptsEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Concept Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    public class TaxonomySitemapItem : ISitemapItem
+    {
+        /// <summary>
+        /// Classified Items Count
+        /// </summary>
+        public int? ClassifiedItemsCount { get; set; }
+
+        /// <summary>
+        /// Description
+        /// </summary>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Items
+        /// </summary>
+        public List<ISitemapItem> Items { get; set; }
+
+        /// <summary>
+        /// Key
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Original title
+        /// </summary>
+        public string OriginalTitle { get; set; }
+
+        /// <summary>
+        /// The most recent date this item was published.
+        /// </summary>
+        public string PublishedDate { get; set; }
+
+        /// <summary>
+        /// Title
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public string Type { get; set; }
+
+        /// <summary>
+        /// Url
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// Is Abstract
+        /// </summary>
+        public bool? Abstract { get; set; }
+
+        /// <summary>
+        /// Has Child Nodes
+        /// </summary>
+        public bool? HasChildNodes { get; set; }
+
+        /// <summary>
+        /// Visible
+        /// </summary>
+        public bool? Visible { get; set; }
+    }
+
+    /// <summary>
+    /// A connection to a list of items.
+    /// </summary>
+    public class TaxonomyTopConceptsSearchResultsConnection
+    {
+        /// <summary>
+        /// a list of edges
+        /// </summary>
+        public List<TaxonomyTopConceptsSearchResultsEdge> Edges { get; set; }
+    }
+
+    /// <summary>
+    /// An edge in a connection
+    /// </summary>
+    public class TaxonomyTopConceptsSearchResultsEdge
+    {
+        /// <summary>
+        /// The item at the end of the edge
+        /// </summary>
+        public Concept Node { get; set; }
+
+        /// <summary>
+        /// cursor marks a unique position or index into the connection
+        /// </summary>
+        public string Cursor { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum TaxonomyType
+    {
+        /// <summary>
+        /// KEYWORD
+        /// </summary>
+        KEYWORD,
+
+        /// <summary>
+        /// CATEGORY
+        /// </summary>
+        CATEGORY,
+
+        STRUCTUREGROUP
+    }
+
+    /// <summary>
+    /// Represents a template.
+    /// </summary>
+    public class Template : IItem
+    {
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the item. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the output format of the template.
+        /// </summary>
+        public string OutputFormat { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the priority of the template.
+        /// </summary>
+        public int? Priority { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
+    }
+
+    /// <summary>
+    /// Untyped content where all data is available in a Map structure.
+    /// </summary>
+    public class UntypedContent : IContent
+    {
+        /// <summary>
+        /// Return content data
+        /// </summary>
+        public IDictionary Data { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Identifies the type of the content.
+        /// </summary>
+        public string Type { get; set; }
+    }
+
+    /// <summary>
+    /// Untyped page region.
+    /// </summary>
+    public class UntypedPageRegion : IPageRegion, IItem
+    {
+        /// <summary>
+        /// Returns the list of components in region.
+        /// </summary>
+        public List<IContentComponent> Components { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was created.
+        /// </summary>
+        public string CreationDate { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data for the item.
+        /// </summary>
+        public CustomMetaConnection CustomMetas { get; set; }
+
+        /// <summary>
+        /// Returns the custom meta data structure for the region. Can be used to group related fields together.
+        /// </summary>
+        public UntypedContent CustomMetasStructure { get; set; }
+
+        /// <summary>
+        /// Identifies the unique ID of the node.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was initially published.
+        /// </summary>
+        public string InitialPublishDate { get; set; }
+
+        /// <summary>
+        /// Identifies the item ID.
+        /// </summary>
+        public int ItemId { get; set; }
+
+        /// <summary>
+        /// Returns the item type of the item.
+        /// </summary>
+        public Tridion.Dxa.Api.Client.ItemType ItemType { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was most recently published.
+        /// </summary>
+        public string LastPublishDate { get; set; }
+
+        /// <summary>
+        /// Returns the name of the region.
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Identifies the namespace ID of the item.
+        /// </summary>
+        public ContentNamespace NamespaceId { get; set; }
+
+        /// <summary>
+        /// Returns the publication ID of the publication to which this item belongs.
+        /// </summary>
+        public int? OwningPublicationId { get; set; }
+
+        /// <summary>
+        /// Identifies the publication ID of the item.
+        /// </summary>
+        public int PublicationId { get; set; }
+
+        /// <summary>
+        /// Returns the regions for the page.
+        /// </summary>
+        public List<IPageRegion> Regions { get; set; }
+
+        /// <summary>
+        /// Returns the schema for the item.
+        /// </summary>
+        public Schema Schema { get; set; }
+
+        /// <summary>
+        /// Returns the title of the item.
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
+        /// Returns the date the item was updated.
+        /// </summary>
+        public string UpdatedDate { get; set; }
     }
 
 }

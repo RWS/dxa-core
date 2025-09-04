@@ -13,8 +13,8 @@
     <Description>RWS Digital eXperience Accelerator Framework for Tridion Sites.</Description>
     <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/rws/dxa-module-search-net</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/rws/dxa-module-search-net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-module-search-net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.14" />
-    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20250510095911" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.19" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20250904152142" />
   </ItemGroup>
 
   <!-- Explicitly include views as embedded resources -->

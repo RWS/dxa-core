@@ -29,7 +29,6 @@ namespace Tridion.Dxa.Example.WebApp
             bool terminateProcess = false;
 
             Logger logger = LogManager.Setup()
-                //.LoadConfigurationFromFile() // We could use .LoadConfigurationFromAppSettings and move nlog.config stuff into appsettings.json
                 .LoadConfigurationFromAppSettings()
                 .GetCurrentClassLogger();
 

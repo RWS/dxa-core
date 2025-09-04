@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Tridion.Dxa.Api.Client.ContentModel;
+using Tridion.Dxa.Api.Client.Converters;
 using Tridion.Dxa.Api.Client.GraphQLClient.Request;
 using Tridion.Dxa.Api.Client.Utils;
 
@@ -386,6 +387,24 @@ namespace Tridion.Dxa.Api.Client
                 .Build();
         }
 
+        public static IGraphQLRequest CategoryByCategoryName(ContentNamespace ns, int publicationId, string categoryName,
+            int descendantLevels, string customMetaFilter, IContextData contextData, IContextData globalContextData)
+        {
+            QueryBuilder builder =
+                new QueryBuilder().WithQueryResource(
+                    descendantLevels == 0 ? "CategoryByCategoryNameNoRecurse" : "CategoryByCategoryName", true);
+
+            return builder
+                .WithNamespace(ns)
+                .WithPublicationId(publicationId)
+                .WithVariable("categoryName", categoryName)
+                .WithDescendantLevels(descendantLevels)
+                .WithCustomMetaFilter(customMetaFilter)
+                .WithContextData(contextData)
+                .WithContextData(globalContextData)
+                .WithConvertor(new KeywordItemConvertor())
+                .Build();
+        }
 
 
         #region Query Builder Helpers

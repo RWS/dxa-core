@@ -21,8 +21,12 @@ namespace Sdl.Web.Common.Models
             IList<string> errorMessages = new List<string>();
             do
             {
-                errorMessages.Add(ex.Message);
-                ex = ex.InnerException;
+                if (ex != null)
+                {
+                    errorMessages.Add(ex.Message);
+                    ex = ex.InnerException;
+                }
+
             } while (ex != null);
             ErrorMessages = errorMessages.ToArray();
 
