@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Sdl.Web.Common.Models;
 using System.ServiceModel.Syndication;
 
@@ -6,7 +7,7 @@ namespace Sdl.Web.Mvc.Formats
 {
     public class RssFormatter : FeedFormatter
     {
-        public RssFormatter()
+        public RssFormatter(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
             AddMediaType("application/rss+xml");
             ProcessModel = true;

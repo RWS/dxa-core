@@ -2,6 +2,8 @@
 using Sdl.Web.Mvc.Configuration;
 using System;
 using System.ServiceModel.Syndication;
+using Microsoft.AspNetCore.Http;
+using System.Web;
 
 namespace Sdl.Web.Mvc.Formats
 {
@@ -10,6 +12,16 @@ namespace Sdl.Web.Mvc.Formats
     /// </summary>
     public abstract class FeedFormatter : BaseFormatter
     {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        /// <summary>
+        /// Constructor for dependency injection
+        /// </summary>
+        protected FeedFormatter(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        }
+
         /// <summary>
         /// Extracts a syndication feed from a given View Model.
         /// </summary>
@@ -32,17 +44,25 @@ namespace Sdl.Web.Mvc.Formats
 
             return new SyndicationFeed(pageModel.Title, description, new Uri(feedAlternateLink))
             {
-                Language = WebRequestContext.Current.Localization.Culture,
+                Language = WebRequestContext.Current.Localization?.Culture,
                 Items = pageModel.ExtractSyndicationFeedItems(WebRequestContext.Current.Localization)
             };
         }
 
         private string GetPageUrlWithoutFormatParameter()
         {
-            // NameValueCollection filtered = HttpUtility.ParseQueryString(HttpContext.Request.QueryString.ToString());
-            // filtered.Remove("format");
-            //return HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path) + (filtered.Count>0 ?  "?" + filtered : "");
-            return "";
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null)
+            {
+                throw new InvalidOperationException("HttpContext is not available");
+            }
+
+            var request = httpContext.Request;
+            var filtered = HttpUtility.ParseQueryString(request.QueryString.ToString());
+            filtered.Remove("format");
+
+            var baseUrl = $"{request.Scheme}://{request.Host}{request.Path}";
+            return filtered.Count > 0 ? $"{baseUrl}?{filtered}" : baseUrl;
         }
     }
 }

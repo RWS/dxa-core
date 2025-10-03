@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Sdl.Web.Mvc.Configuration;
+using System;
 using System.Collections.Generic;
 
 namespace Sdl.Web.Mvc.Formats
@@ -7,6 +8,7 @@ namespace Sdl.Web.Mvc.Formats
     public static class DataFormatters
     {
         public static Dictionary<string, IDataFormatter> Formatters { get; set; }
+
         static DataFormatters()
         {
             Formatters = new Dictionary<string, IDataFormatter>();
@@ -15,7 +17,8 @@ namespace Sdl.Web.Mvc.Formats
         public static IDataFormatter GetFormatter(ControllerContext controllerContext)
         {
             string format = GetFormat(controllerContext);
-            if (Formatters.ContainsKey(format) && WebRequestContext.Current.Localization.DataFormats.Contains(format))
+            if (Formatters.ContainsKey(format) &&
+                WebRequestContext.Current.Localization.DataFormats.Contains(format))
             {
                 return Formatters[format];
             }
@@ -24,29 +27,31 @@ namespace Sdl.Web.Mvc.Formats
 
         public static List<string> GetValidTypes(ControllerContext controllerContext, List<string> allowedTypes)
         {
-            List<string> res = new List<string>();
-            /*
-            string[] acceptTypes = controllerContext.HttpContext.;
-            if (acceptTypes!=null)
+            var result = new List<string>();
+
+            var acceptHeader = controllerContext.HttpContext.Request.Headers["Accept"].ToString();
+            if (!string.IsNullOrEmpty(acceptHeader))
             {
-                foreach (string type in acceptTypes)
+                var acceptTypes = acceptHeader.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var type in acceptTypes)
                 {
-                    foreach (string mediaType in allowedTypes)
+                    foreach (var mediaType in allowedTypes)
                     {
-                        if (type.Contains(mediaType))
+                        if (type.Contains(mediaType, StringComparison.OrdinalIgnoreCase))
                         {
-                            res.Add(type);
+                            result.Add(type);
                         }
                     }
                 }
-            }*/
-            return res;
+            }
+
+            return result;
         }
 
         public static double GetScoreFromAcceptString(string type)
         {
             double res = 1.0;
-            int pos = type.IndexOf("q=", System.StringComparison.Ordinal);
+            int pos = type.IndexOf("q=", StringComparison.OrdinalIgnoreCase);
             if (pos > 0)
             {
                 double.TryParse(type.Substring(pos + 2), out res);
@@ -56,16 +61,20 @@ namespace Sdl.Web.Mvc.Formats
 
         private static string GetFormat(ControllerContext controllerContext)
         {
-            string format = controllerContext.HttpContext.Request.Query["format"];
-            if (format != null)
+            var query = controllerContext.HttpContext.Request.Query;
+            string format = query.ContainsKey("format") ? query["format"].ToString() : null;
+
+            if (!string.IsNullOrEmpty(format))
             {
-                return format.ToLower();
+                return format.ToLowerInvariant();
             }
+
             format = "html";
             double topScore = GetHtmlAcceptScore(controllerContext);
+
             if (topScore < 1.0)
             {
-                foreach (string key in Formatters.Keys)
+                foreach (var key in Formatters.Keys)
                 {
                     double score = Formatters[key].Score(controllerContext);
                     if (score > topScore)
@@ -73,38 +82,42 @@ namespace Sdl.Web.Mvc.Formats
                         topScore = score;
                         format = key;
                     }
+
                     if (topScore == 1.0)
                     {
                         break;
                     }
                 }
             }
+
             return format;
         }
 
         private static double GetHtmlAcceptScore(ControllerContext controllerContext)
         {
             double score = 0.0;
-            /*
-            string[] acceptTypes = controllerContext.HttpContext.Request.AcceptTypes;
-            if (acceptTypes!=null)
+
+            var acceptHeader = controllerContext.HttpContext.Request.Headers["Accept"].ToString();
+            if (!string.IsNullOrEmpty(acceptHeader))
             {
-                foreach (string type in acceptTypes)
+                var acceptTypes = acceptHeader.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var type in acceptTypes)
                 {
-                    if (type.Contains("html"))
+                    if (type.Contains("html", StringComparison.OrdinalIgnoreCase))
                     {
                         double thisScore = GetScoreFromAcceptString(type);
                         if (thisScore > score)
                         {
                             score = thisScore;
                         }
-                        if (score == 1)
+                        if (score == 1.0)
                         {
                             break;
                         }
                     }
                 }
-            }*/
+            }
+
             return score;
         }
     }

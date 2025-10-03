@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
@@ -32,25 +33,53 @@ namespace Tridion.Dxa.Framework
 
         public static IApplicationBuilder UseDxa(this IApplicationBuilder app)
         {
-            // Rewrite rule for versioned URLs
-            var rewriteOptions = new RewriteOptions()
-                .AddRewrite(
-                    SiteConfiguration.SystemFolder + "/" + SiteConfiguration.VersionRegex + "/(.*)",
-                    SiteConfiguration.SystemFolder + "/$2",
-                    skipRemainingRules: true
-                );
-            
-            app.UseRewriter(rewriteOptions);
+            if (app == null) throw new ArgumentNullException(nameof(app));
 
-            // Use dxa middleware
+            // Configure URL rewriting
+            app.UseRewriter(CreateRewriteOptions());
+
+            // Use DXA middleware
             app.UseMiddleware<DxaMiddleware>();
 
             // Register data formatters
-            DataFormatters.Formatters.Add("json", new JsonFormatter());
-            DataFormatters.Formatters.Add("rss", new RssFormatter());
-            DataFormatters.Formatters.Add("atom", new AtomFormatter());
+            RegisterDataFormatters(app);
 
             return app;
+        }
+
+        public static IApplicationBuilder UseDxaRestApi(this IApplicationBuilder app)
+        {
+            if (app == null) throw new ArgumentNullException(nameof(app));
+
+            // Configure URL rewriting
+            app.UseRewriter(CreateRewriteOptions());
+
+            // Use DXA middleware
+            app.UseMiddleware<DxaMiddleware>();
+
+            // Register data formatters
+            RegisterDataFormatters(app);
+
+            return app;
+        }
+
+        private static RewriteOptions CreateRewriteOptions()
+        {
+            return new RewriteOptions()
+                .AddRewrite(
+                    $"{SiteConfiguration.SystemFolder}/{SiteConfiguration.VersionRegex}/(.*)",
+                    $"{SiteConfiguration.SystemFolder}/$2",
+                    skipRemainingRules: true
+                );
+        }
+
+        private static void RegisterDataFormatters(IApplicationBuilder app)
+        {
+            var httpContextAccessor = app.ApplicationServices.GetRequiredService<IHttpContextAccessor>();
+
+            DataFormatters.Formatters.Add("json", new JsonFormatter());
+            DataFormatters.Formatters.Add("rss", new RssFormatter(httpContextAccessor));
+            DataFormatters.Formatters.Add("atom", new AtomFormatter(httpContextAccessor));
         }
 
         public static void ConfigureDxaEndpoints(this IEndpointRouteBuilder endpoints, IServiceProvider serviceProvider)
@@ -61,28 +90,6 @@ namespace Tridion.Dxa.Framework
             {
                 registrar.Register(endpoints);
             }
-        }
-
-
-        public static IApplicationBuilder UseDxaRestApi(this IApplicationBuilder app)
-        {
-            // Rewrite rule for versioned urls
-            var rewrite = new RewriteOptions().AddRewrite(
-                SiteConfiguration.SystemFolder + "/" + SiteConfiguration.VersionRegex + "/(.*)",  // RegEx to match Route
-                SiteConfiguration.SystemFolder + "/$2",                     // URL to rewrite route
-                skipRemainingRules: true         // Should skip other rules
-            );
-            app.UseRewriter(rewrite);
-
-            // Use dxa middleware
-            app.UseMiddleware<DxaMiddleware>();
-
-            // Register data formatters
-            DataFormatters.Formatters.Add("json", new JsonFormatter());
-            DataFormatters.Formatters.Add("rss", new RssFormatter());
-            DataFormatters.Formatters.Add("atom", new AtomFormatter());
-
-            return app;
         }
 
         private static List<AreaRegistration> GetAreaRegistrars(IServiceProvider services)

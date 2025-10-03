@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
 using Sdl.Web.Common.Models;
 using Sdl.Web.Mvc.Controllers;
 using System;
@@ -16,15 +17,27 @@ namespace Sdl.Web.Mvc.Formats
     {
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
-            Controller controller = filterContext.Controller as Controller;
-            if (controller != null)
+            if (filterContext.Controller is Controller controller)
             {
-                IDataFormatter formatter = DataFormatters.GetFormatter(controller.ControllerContext);
-                if (formatter != null)
+                // Resolve IConfiguration from the request services
+                var configuration = filterContext.HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
+
+                // Default true if missing
+                bool enableFormatParam = configuration?.GetValue<bool?>("Dxa:enableformatquery") ?? true;
+
+                if (enableFormatParam)
                 {
-                    controller.ViewData[DxaViewDataItems.DisableOutputCache] = true;
-                    controller.ViewData[DxaViewDataItems.DataFormatter] = formatter;
-                    controller.ViewData[DxaViewDataItems.AddIncludes] = formatter.AddIncludes;
+                    IDataFormatter formatter = DataFormatters.GetFormatter(controller.ControllerContext);
+                    if (formatter != null)
+                    {
+                        controller.ViewData[DxaViewDataItems.DisableOutputCache] = true;
+                        controller.ViewData[DxaViewDataItems.DataFormatter] = formatter;
+                        controller.ViewData[DxaViewDataItems.AddIncludes] = formatter.AddIncludes;
+                    }
+                    else
+                    {
+                        controller.ViewData[DxaViewDataItems.DisableOutputCache] = false;
+                    }
                 }
                 else
                 {

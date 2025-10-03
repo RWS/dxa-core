@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Sdl.Web.Common.Models;
 using System.ServiceModel.Syndication;
 
@@ -6,7 +7,7 @@ namespace Sdl.Web.Mvc.Formats
 {
     public class AtomFormatter : FeedFormatter
     {
-        public AtomFormatter()
+        public AtomFormatter(IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
             AddMediaType("application/atom+xml");
             ProcessModel = true;
