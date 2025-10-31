@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.421
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36511.14 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tridion.CodeGen", "src\Tridion.CodeGen\Tridion.CodeGen.csproj", "{8458DB77-658F-48BB-9FF2-669F4F8CC74C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tridion.Dxa.Api.Client", "..\..\..\..\testing\dxa-pca-client-net\dotnet\src\Tridion.Dxa.Api.Client\Tridion.Dxa.Api.Client.csproj", "{D99C9873-17D7-2759-31FD-339F675200E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8458DB77-658F-48BB-9FF2-669F4F8CC74C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8458DB77-658F-48BB-9FF2-669F4F8CC74C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8458DB77-658F-48BB-9FF2-669F4F8CC74C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D99C9873-17D7-2759-31FD-339F675200E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D99C9873-17D7-2759-31FD-339F675200E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D99C9873-17D7-2759-31FD-339F675200E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D99C9873-17D7-2759-31FD-339F675200E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

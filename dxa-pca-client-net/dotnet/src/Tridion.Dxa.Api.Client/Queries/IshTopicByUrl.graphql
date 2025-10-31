@@ -1,8 +1,12 @@
 ﻿query topic($url: String!) {
 	ishTopic(url: $url) {
-        ...ItemFields   
+        ...ItemFields
+		url
+		xhtml
         abstract {
-          xhtml
+          title
+		  type
+		  xhtml
           links {
             cmUri
             title
@@ -17,6 +21,7 @@
             type
             uri
           }
+		  xhtml
         }
 		...on IshConceptTopic {
 		  body {

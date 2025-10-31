@@ -3,8 +3,12 @@
         edges {
 			cursor
 			node {
-				...ItemFields    
+				...ItemFields
+				url
+				xhtml
 				abstract {
+				  title
+				  type
 				  xhtml
 				  links {
 					cmUri
@@ -20,6 +24,7 @@
 					type
 					uri
 				  }
+				  xhtml
 				}
 				...on IshConceptTopic {
 				  body {

@@ -4502,7 +4502,7 @@ namespace Tridion.Dxa.Api.Client.ContentModel
         /// <summary>
         /// The item at the end of the edge
         /// </summary>
-        public IIshTopic Node { get; set; }
+        public IshGenericTopic Node { get; set; }
 
         /// <summary>
         /// cursor marks a unique position or index into the connection

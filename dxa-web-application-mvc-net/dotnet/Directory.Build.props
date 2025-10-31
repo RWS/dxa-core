@@ -22,7 +22,7 @@
     <LangVersion>latest</LangVersion>
 
     <!-- NuGet Sources -->
-    <RestoreSources>$(RestoreSources);https://nexus.sdl.com/repository/releases_dotnet/;https://nuget.org/api/v3/</RestoreSources>
+    <RestoreSources>$(RestoreSources);https://nexus.sdl.com/repository/releases_dotnet/;https://api.nuget.org/v3/index.json</RestoreSources>
     <LocalNugetStorage>../LocalNugetStorage</LocalNugetStorage>
     <RestoreSources Condition=" Exists('$(LocalNugetStorage)') ">$(LocalNugetStorage);$(RestoreSources)</RestoreSources>
 

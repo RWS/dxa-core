@@ -19,9 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Tridion.Dxa.Api.Client">
-      <HintPath>..\Tridion.Dxa.Api.Client\bin\Debug\net8.0\Tridion.Dxa.Api.Client.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\..\..\..\..\..\testing\dxa-pca-client-net\dotnet\src\Tridion.Dxa.Api.Client\Tridion.Dxa.Api.Client.csproj" />
   </ItemGroup>
 
 </Project>

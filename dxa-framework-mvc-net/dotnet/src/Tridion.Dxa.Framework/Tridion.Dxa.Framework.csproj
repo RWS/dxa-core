@@ -28,7 +28,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
-    <PackageReference Include="Tridion.Dxa.Api.Client" Version="2.4.0-beta-20250904114409" />
+    <PackageReference Include="Tridion.Dxa.Api.Client" Version="2.4.0-beta-20251031100206" />
     <PackageReference Include="Tridion.Dxa.Framework.DataModel" Version="2.4.0-beta-20250518221117" />
   </ItemGroup>
   <ItemGroup>
