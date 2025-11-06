@@ -17,6 +17,14 @@ namespace Sdl.Web.Mvc.Formats
         public static IDataFormatter GetFormatter(ControllerContext controllerContext)
         {
             string format = GetFormat(controllerContext);
+
+            // Fast null checks without exceptions
+            if (string.IsNullOrEmpty(format) ||
+                WebRequestContext.Current?.Localization?.DataFormats == null)
+            {
+                return null;
+            }
+
             if (Formatters.ContainsKey(format) &&
                 WebRequestContext.Current.Localization.DataFormats.Contains(format))
             {
@@ -61,6 +69,10 @@ namespace Sdl.Web.Mvc.Formats
 
         private static string GetFormat(ControllerContext controllerContext)
         {
+            // Early bail-out with minimal checks
+            if (controllerContext?.HttpContext?.Request == null)
+                return "html";
+
             var query = controllerContext.HttpContext.Request.Query;
             string format = query.ContainsKey("format") ? query["format"].ToString() : null;
 
