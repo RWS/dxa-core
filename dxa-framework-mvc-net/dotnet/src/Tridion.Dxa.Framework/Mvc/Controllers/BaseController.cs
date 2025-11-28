@@ -1,13 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Sdl.Web.Common.Configuration;
 using Sdl.Web.Common.Interfaces;
 using Sdl.Web.Common.Logging;
 using Sdl.Web.Common.Models;
 using System;
+using System.Linq;
+using System.Reflection;
 
 namespace Sdl.Web.Mvc.Controllers
 {
@@ -143,14 +145,31 @@ namespace Sdl.Web.Mvc.Controllers
             {
                 string controllerName = mvcData.ControllerName ?? SiteConfiguration.GetEntityController();
                 string controllerAreaName = mvcData.ControllerAreaName ?? SiteConfiguration.GetDefaultModuleName();
+                string controllerActionName = mvcData.ActionName ?? SiteConfiguration.GetEntityAction();
 
                 var tempRouteData = new RouteData();
                 tempRouteData.DataTokens["Area"] = controllerAreaName;
                 tempRouteData.Values["controller"] = controllerName;
                 tempRouteData.Values["area"] = controllerAreaName;
+                tempRouteData.Values["action"] = controllerActionName;
 
-                var tempHttpContext = new DefaultHttpContext();
-                var tempActionContext = new ActionContext(tempHttpContext, tempRouteData, new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor());
+                var tempHttpContext = new DefaultHttpContext
+                {
+                    RequestServices = HttpContext.RequestServices
+                };
+
+                //Properly resolve the controller type based on controller name .NET core strict with ControllerActionDescriptor
+                Type controllerType = ResolveControllerType(controllerName, controllerAreaName);
+
+                var actionDescriptor = new ControllerActionDescriptor
+                {
+                    ControllerName = controllerName,
+                    ActionName = controllerActionName,
+                    ControllerTypeInfo = controllerType.GetTypeInfo(),
+                    MethodInfo = controllerType.GetMethod(controllerActionName) 
+                };
+
+                var tempActionContext = new ActionContext(tempHttpContext, tempRouteData, actionDescriptor);
 
                 var controllerFactory = HttpContext.RequestServices.GetRequiredService<IControllerFactory>();
                 var entityController = (BaseController)controllerFactory.CreateController(new ControllerContext(tempActionContext));
@@ -158,6 +177,24 @@ namespace Sdl.Web.Mvc.Controllers
                 entityController.ControllerContext = new ControllerContext(tempActionContext);
                 return (EntityModel)entityController.EnrichModel(entity);
             }
+        }
+
+        private Type ResolveControllerType(string controllerName, string areaName)
+        {
+            // Try to resolve the specific controller type
+            if (controllerName.Equals("List", StringComparison.OrdinalIgnoreCase))
+            {
+                return typeof(ListController);
+            }
+
+            // Fall back to default resolution
+            var controllerTypes = GetType().Assembly.GetTypes()
+                .Where(t => typeof(BaseController).IsAssignableFrom(t) &&
+                           !t.IsAbstract &&
+                           t.Name.Equals(controllerName + "Controller", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return controllerTypes.FirstOrDefault() ?? typeof(EntityController);
         }
 
         private static bool IsCustomAction(MvcData mvcData)

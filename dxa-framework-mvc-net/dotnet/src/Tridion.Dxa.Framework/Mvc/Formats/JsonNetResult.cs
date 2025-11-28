@@ -18,10 +18,12 @@ namespace Sdl.Web.Mvc.Formats
 
         public JsonNetResult(object value) : base(value)
         {
+		    //.NET Core was ignoring Link properties due to circular reference handling
+			//Fix: Used the same serialization settings as the working .NET Framework 4.8 version ReferenceLoopHandling.Serialize instead of Ignore
             SerializerSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 PreserveReferencesHandling = PreserveReferencesHandling.Objects
             };
         }
