@@ -57,6 +57,8 @@ ScaffoldingReadMe.txt
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
+# Local NuGet feed folders (produced by Release-Dxa.ps1 and build.proj GenerateLocalNuGetPackages target)
+**/LocalNugetStorage/
 
 # Others
 ~$*

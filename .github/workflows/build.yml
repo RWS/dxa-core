@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: [ develop, 'release/**' ]
+  pull_request:
+    branches: [ develop, 'release/**' ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & pack all packages
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Builds every DXA component in dependency order (datamodel -> pca-client -> framework-mvc),
+      # packs clean 2.4.0 nupkgs, and primes the shared LocalNugetStorage so downstream restores
+      # resolve locally. -SkipPush keeps it a CI build (no Nexus push). -SkipSign avoids the
+      # signing step which needs a cert that isn't on CI runners.
+      - name: Build & pack all DXA packages
+        shell: pwsh
+        run: .\Release-Dxa.ps1 -SkipPush -SkipSign -NonInteractive

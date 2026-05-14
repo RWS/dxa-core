@@ -9,10 +9,11 @@
     <Company>RWS</Company>
     <Product>Tridion.Dxa.Api.Client</Product>
     <Description>RWS Digital eXperience Accelerator Framework for RWS Tridion Sites.</Description>
-    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>DXA;.NET;RWS;SDL</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-pca-client-net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

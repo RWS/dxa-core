@@ -3,7 +3,7 @@ RWS Digital Experience Accelerator .NET Core MVC web application
 ===
 Build status
 ------------
-- Develop: 
+- Develop: [![Build](https://github.com/RWS/dxa-core/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/RWS/dxa-core/actions/workflows/build.yml?query=branch%3Adevelop)
 
 Prerequisites
 -------------
@@ -11,12 +11,71 @@ For building .NET 8 repositories you must have the following installed:
 - Visual Studio 2022
 - .NET 8
 
-Build
------
+Build (single component)
+------------------------
+Each component has its own `build.proj` under `<component>/dotnet/build/`. To build a single component locally:
+
 ```
+cd <component>/dotnet/build
 msbuild build.proj /t:Restore
-msbuild build.proj
+msbuild build.proj /t:Build /p:BuildConfiguration=Release
 ```
+
+Release (all components, dependency-ordered)
+--------------------------------------------
+The `Release-Dxa.ps1` script at the repo root drives a full multi-package release in the correct order:
+
+1. **Tridion.Dxa.Framework.DataModel** (from `dxa-framework-datamodel`)
+2. **Tridion.Dxa.Api.Client** (from `dxa-pca-client-net`)
+3. **Tridion.Dxa.Framework** (from `dxa-framework-mvc-net`) — package refs for #1 and #2 are auto-bumped before this builds.
+4. Bumps the `Tridion.Dxa.Framework` `<PackageReference>` in each consumer csproj: `dxa-module-core-net`, `dxa-module-dynamicdocumentation-net`, `dxa-module-search-net`, `dxa-web-application-mvc-net`.
+
+Each package step:
+- `msbuild build.proj /t:Build` (uses the existing per-component build target)
+- `msbuild build.proj /t:SignAssemblies` (skip with `-SkipSign` on machines without a code-signing cert)
+- `dotnet pack` with `/p:VersionSuffix=""` to produce a clean stable `2.4.0.nupkg` (the default `SignPackAndPushNuGetPackages` target stamps a `beta-{timestamp}` suffix; we bypass it)
+- `dotnet nuget push` to the target feed (skip with `-SkipPush`)
+- Copies the produced `.nupkg` into the shared `LocalNugetStorage/` at the repo root, and the next component's restore picks it up via `/p:RestoreAdditionalProjectSources` (no Nexus propagation delay)
+
+### Usage
+
+```powershell
+# Dry-run: prints every command, executes nothing.
+.\Release-Dxa.ps1 -DryRun
+
+# Local smoke test: builds & packs all components, doesn't push to any feed.
+.\Release-Dxa.ps1 -SkipPush
+
+# Full release to internal Nexus.
+.\Release-Dxa.ps1
+
+# After Nexus has been verified, re-publish to public NuGet.org.
+.\Release-Dxa.ps1 -NuGetSource https://api.nuget.org/v3/index.json -ApiKey <nuget-org-key>
+```
+
+### Parameters
+
+| Parameter | Default | Purpose |
+|---|---|---|
+| `-Version` | `2.4.0` | Stable version. Becomes `VersionPrefix`; `VersionSuffix` is forced empty. |
+| `-NuGetSource` | Internal Nexus URL | Target feed for `dotnet nuget push`. |
+| `-ApiKey` | `(from build.proj)` | API key for push. |
+| `-SkipSign` | `false` | Skip `SignAssemblies` target. |
+| `-SkipPush` | `false` | Build & pack only; do not push. |
+| `-DryRun` | `false` | Print commands without executing. |
+| `-NonInteractive` | `false` | Skip per-stage confirmation prompts (used by CI). |
+
+### After a successful release
+
+1. Smoke-test a clean restore in a downstream consumer (e.g. `dxa-web-application-mvc-net`) to confirm `2.4.0` resolves from the target feed.
+2. Commit the csproj reference bumps the script made:
+   ```
+   git add -- '**/*.csproj'
+   git commit -m 'Release 2.4.0'
+   git tag v2.4.0
+   git push origin develop --tags
+   ```
+3. Update release notes.
 
 About
 -----

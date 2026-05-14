@@ -9,10 +9,11 @@
     <Company>RWS</Company>
     <Product>Tridion.Dxa.Framework.DataModel</Product>
     <Description>RWS Digital eXperience Accelerator Framework for Tridion Sites.</Description>
-    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/rws/dxa-framework-datamodel</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/rws/dxa-framework-datamodel</RepositoryUrl>
+    <PackageTags>DXA;.NET;RWS;SDL</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-framework-datamodel</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>

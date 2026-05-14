@@ -315,17 +315,33 @@ namespace Tridion.Dxa.Example.WebApp
             services.Configure<KestrelServerOptions>(o => o.AllowSynchronousIO = true);
             services.Configure<IISServerOptions>(o => o.AllowSynchronousIO = true); //If using IIS
 
-            // Redis cache configuration
+            // Session/distributed-cache store: prefer Redis when reachable, fall back to in-memory.
+            // Set "SdlWebDelivery:Caching:Session:UseRedis" = true to opt in (default: in-memory).
             var redisConfig = Configuration.GetSection("SdlWebDelivery:Caching:Handlers:regularDistributedCache");
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = redisConfig["ConnectionString"];
-                options.InstanceName = redisConfig["InstanceName"];
-            });
+            var redisConnectionString = redisConfig["ConnectionString"];
+            var useRedisForSession = Configuration.GetValue<bool?>("SdlWebDelivery:Caching:Session:UseRedis") ?? false;
 
-            // Add direct Redis connection for advanced operations
-            services.AddSingleton<IConnectionMultiplexer>(sp =>
-                ConnectionMultiplexer.Connect(redisConfig["ConnectionString"]));
+            if (useRedisForSession && !string.IsNullOrWhiteSpace(redisConnectionString))
+            {
+                services.AddStackExchangeRedisCache(options =>
+                {
+                    options.Configuration = redisConnectionString;
+                    options.InstanceName = redisConfig["InstanceName"];
+                });
+
+                // Lazy connection so a missing Redis at startup doesn't kill the app — failures surface at first use.
+                services.AddSingleton<IConnectionMultiplexer>(_ =>
+                {
+                    var opts = ConfigurationOptions.Parse(redisConnectionString);
+                    opts.AbortOnConnectFail = false;
+                    return ConnectionMultiplexer.Connect(opts);
+                });
+            }
+            else
+            {
+                // In-memory IDistributedCache — fine for single-instance deployments.
+                services.AddDistributedMemoryCache();
+            }
         }
 
         private void AddDxaModules(IServiceCollection services)

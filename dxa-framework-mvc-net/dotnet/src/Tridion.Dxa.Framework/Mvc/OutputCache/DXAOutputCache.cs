@@ -206,7 +206,12 @@ namespace Tridion.Dxa.Framework.Mvc.OutputCache
                 // Safely get cache key salt - removed the problematic coalesce
                 var cacheKeySalt = webRequestContext.CacheKeySalt; // Just use the value directly
 
-                sb.Append($"{context.ActionDescriptor.Id}-{localizationId}-{context.HttpContext.Request.Path}-{userAgent}:{cacheKeySalt}");
+                // Include query string so paged variants (e.g. ?start=5&id=309) don't collide with the base path entry
+                var queryString = context.HttpContext.Request.QueryString.HasValue
+                    ? context.HttpContext.Request.QueryString.Value
+                    : string.Empty;
+
+                sb.Append($"{context.ActionDescriptor.Id}-{localizationId}-{context.HttpContext.Request.Path}{queryString}-{userAgent}:{cacheKeySalt}");
 
                 // Handle action arguments
                 foreach (var p in context.ActionArguments.Where(p => p.Value != null))

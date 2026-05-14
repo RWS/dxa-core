@@ -24,7 +24,14 @@ namespace Sdl.Web.Mvc.Html
         /// </remarks>
         public static string VersionedContent(this IUrlHelper helper, string relativePath, string localization = "")
         {
-            string versionedUrlPath = WebRequestContext.Current.Localization.GetVersionedUrlPath(relativePath);
+            // Defensive: this is called from ServerError.cshtml too, so it must not NRE when the request
+            // failed before Localization could be resolved — otherwise the error page itself crashes and
+            // the browser sees the raw underlying exception instead of a friendly error page.
+            var loc = WebRequestContext.Current?.Localization;
+            if (loc == null)
+                return helper.Content(relativePath);
+
+            string versionedUrlPath = loc.GetVersionedUrlPath(relativePath);
             return helper.Content(versionedUrlPath);
         }
 

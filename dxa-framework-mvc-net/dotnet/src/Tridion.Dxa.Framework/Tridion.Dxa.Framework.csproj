@@ -9,15 +9,16 @@
     <Company>RWS</Company>
     <Product>Tridion.Dxa.Framework</Product>
     <Description>RWS Digital eXperience Accelerator Framework for RWS Tridion Sites.</Description>
-    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>DXA;.NET;RWS;SDL</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-framework-mvc-net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="CommonServiceLocator" Version="2.0.7" />
-    <PackageReference Include="HtmlAgilityPack.NetCore" Version="1.5.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.19" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.19" />
@@ -28,8 +29,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="8.0.0" />
-    <PackageReference Include="Tridion.Dxa.Api.Client" Version="2.4.0-beta-20251031100206" />
-    <PackageReference Include="Tridion.Dxa.Framework.DataModel" Version="2.4.0-beta-20250518221117" />
+    <PackageReference Include="Tridion.Dxa.Api.Client" Version="2.4.0" />
+    <PackageReference Include="Tridion.Dxa.Framework.DataModel" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Mvc\Formats\" />

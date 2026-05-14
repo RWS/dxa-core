@@ -2,8 +2,9 @@
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,13 +13,14 @@ using Tridion.Dxa.Api.Client.HttpClient.Auth;
 using Tridion.Dxa.Api.Client.HttpClient.Exceptions;
 using Tridion.Dxa.Api.Client.HttpClient.Request;
 using Tridion.Dxa.Api.Client.HttpClient.Response;
+using SystemNetHttpClient = System.Net.Http.HttpClient;
 
 namespace Tridion.Dxa.Api.Client.HttpClient
 {
     /// <summary>
     /// Http Client
     /// </summary>
-    public class HttpClient : IHttpClient
+    public class HttpClient : IHttpClient, IDisposable
     {
         public Uri BaseUri { get; set; }
         public int Timeout { get; set; } = 10000;
@@ -28,26 +30,38 @@ namespace Tridion.Dxa.Api.Client.HttpClient
         public ILogger Logger { get; } = new NullLogger();
         protected readonly IAuthentication _auth;
 
-        public HttpClient()
-        { }
+        private readonly SystemNetHttpClient _http;
 
-        public HttpClient(string endpoint)
+        public HttpClient()
+        {
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            };
+            _http = new SystemNetHttpClient(handler, disposeHandler: true)
+            {
+                // Per-request timeout is enforced via CancellationToken so callers can change Timeout dynamically.
+                Timeout = System.Threading.Timeout.InfiniteTimeSpan
+            };
+        }
+
+        public HttpClient(string endpoint) : this()
         {
             BaseUri = new Uri(endpoint);
         }
 
-        public HttpClient(string endpoint, IAuthentication auth)
+        public HttpClient(string endpoint, IAuthentication auth) : this()
         {
             BaseUri = new Uri(endpoint);
             _auth = auth;
         }
 
-        public HttpClient(Uri endpoint)
+        public HttpClient(Uri endpoint) : this()
         {
             BaseUri = endpoint;
         }
 
-        public HttpClient(Uri endpoint, IAuthentication auth)
+        public HttpClient(Uri endpoint, IAuthentication auth) : this()
         {
             BaseUri = endpoint;
             _auth = auth;
@@ -75,191 +89,179 @@ namespace Tridion.Dxa.Api.Client.HttpClient
 
         public virtual bool Ping()
         {
-            var request = CreateHttpWebRequest(new HttpClientRequest
-            {
-                Method = "HEAD",
-            });
-            request.AllowAutoRedirect = false;
             try
             {
-                using (var response = request.GetResponse())
+                using (HttpRequestMessage request = CreateHttpRequest(new HttpClientRequest { Method = "HEAD" }))
+                using (var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(Timeout)))
+                using (HttpResponseMessage response = _http
+                    .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cts.Token)
+                    .GetAwaiter().GetResult())
                 {
                     return true;
                 }
             }
-            catch (Exception)
+            catch
             {
-                // ignore
+                return false;
             }
-
-            return false;
         }
 
         public virtual IHttpClientResponse<T> Execute<T>(IHttpClientRequest clientRequest)
-        {
-            try
-            {
-                return RetryBlock<IHttpClientResponse<T>>(() =>
-                {
-                    var request = CreateHttpWebRequest(clientRequest);
-
-                    using (var response = request.GetResponse())
-                    {
-                        var httpWebResponse = (HttpWebResponse)response;
-                        using (var responseStream = response.GetResponseStream())
-                        {
-                            if (responseStream == null) return default(HttpClientResponse<T>);
-                            var data = ReadStream(responseStream);
-                            LogErrorResponse(data);
-                            var deserialized = Deserialize<T>(data, httpWebResponse.ContentType, clientRequest.Binder,
-                                clientRequest.Convertors);
-                            return new HttpClientResponse<T>
-                            {
-                                StatusCode = (int)httpWebResponse.StatusCode,
-                                ContentType = httpWebResponse.ContentType,
-                                Headers = new HttpHeaders(httpWebResponse.Headers),
-                                ResponseData = deserialized
-                            };
-                        }
-                    }
-                }, RetryCount);
-            }
-            catch (WebException e)
-            {
-                Logger.Error(e, $"Failed to get http response from '{BaseUri}' with request: '{clientRequest}'");
-                if (e.Response == null) throw new HttpClientException(e.Message, e);
-                var data = ReadStream(e.Response.GetResponseStream());
-                throw new HttpClientException(
-                    $"Failed to get http response from '{BaseUri}' with request: {clientRequest}",
-                    e, (int)e.Status, Encoding.UTF8.GetString(data));
-            }
-            catch (Exception e)
-            {
-                throw new HttpClientException($"Failed to get http response from '{BaseUri}' with request: {clientRequest}", e);
-            }
-        }
+            => ExecuteAsync<T>(clientRequest, CancellationToken.None).GetAwaiter().GetResult();
 
         public virtual async Task<IHttpClientResponse<T>> ExecuteAsync<T>(IHttpClientRequest clientRequest,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
-                HttpWebRequest request = CreateHttpWebRequest(clientRequest);
-                using (WebResponse response = await request.GetResponseAsync().ConfigureAwait(false))
-                {
-                    HttpWebResponse httpWebResponse = (HttpWebResponse)response;
-
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        if (responseStream != null)
-                        {
-                            byte[] data = await ReadStreamAsync(responseStream, cancellationToken).ConfigureAwait(false);
-
-                            LogErrorResponse(data);
-
-                            T deserialized =
-                                await
-                                    Task.Factory.StartNew(
-                                        () =>
-                                            Deserialize<T>(data, httpWebResponse.ContentType, clientRequest.Binder,
-                                                clientRequest.Convertors), cancellationToken).ConfigureAwait(false);
-                            return new HttpClientResponse<T>
-                            {
-                                StatusCode = (int)httpWebResponse.StatusCode,
-                                ContentType = httpWebResponse.ContentType,
-                                Headers = new HttpHeaders(httpWebResponse.Headers),
-                                ResponseData = deserialized
-                            };
-                        }
-                    }
-                }
+                return await RetryBlockAsync(
+                    () => SendOnceAsync<T>(clientRequest, cancellationToken),
+                    RetryCount).ConfigureAwait(false);
             }
-            catch (WebException e)
+            catch (HttpClientException)
             {
-                Logger.Error(e, $"Failed to get http response from '{BaseUri}' with request: '{clientRequest}'");
-                if (e.Response == null) throw new HttpClientException(e.Message, e);
-                byte[] data = ReadStream(e.Response.GetResponseStream());
-                throw new HttpClientException($"Failed to get http response from '{BaseUri}' with request: {clientRequest}",
-                    e, (int)e.Status, Encoding.UTF8.GetString(data));
+                throw;
             }
             catch (Exception e)
             {
                 Logger.Error(e, $"Failed to get http response from '{BaseUri}' with request: '{clientRequest}'");
-                throw new HttpClientException($"Failed to get http response from '{BaseUri}' with request: {clientRequest}", e);
+                throw new HttpClientException(
+                    $"Failed to get http response from '{BaseUri}' with request: {clientRequest}", e);
             }
-            Logger.Error($"Failed to get http response from '{BaseUri}' with request: '{clientRequest}'");
-            throw new HttpClientException($"Failed to get http response from '{BaseUri}' with request: {clientRequest}");
         }
 
-        protected virtual HttpWebRequest CreateHttpWebRequest(IHttpClientRequest clientRequest)
+        private async Task<IHttpClientResponse<T>> SendOnceAsync<T>(IHttpClientRequest clientRequest,
+            CancellationToken cancellationToken)
+        {
+            using (HttpRequestMessage request = CreateHttpRequest(clientRequest))
+            using (var timeoutCts = new CancellationTokenSource(TimeSpan.FromMilliseconds(Timeout)))
+            using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token))
+            using (HttpResponseMessage response = await _http
+                .SendAsync(request, HttpCompletionOption.ResponseContentRead, linkedCts.Token)
+                .ConfigureAwait(false))
+            {
+                byte[] data = response.Content != null
+                    ? await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false)
+                    : Array.Empty<byte>();
+
+                LogErrorResponse(data);
+
+                string contentType = response.Content?.Headers.ContentType?.ToString();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Mirror original WebException-based behavior: surface status + body to caller.
+                    throw new HttpClientException(
+                        $"Failed to get http response from '{BaseUri}' with request: {clientRequest}",
+                        null,
+                        (int)response.StatusCode,
+                        Encoding.UTF8.GetString(data));
+                }
+
+                T deserialized = Deserialize<T>(data, contentType, clientRequest.Binder, clientRequest.Convertors);
+
+                return new HttpClientResponse<T>
+                {
+                    StatusCode = (int)response.StatusCode,
+                    ContentType = contentType,
+                    Headers = BuildHeaders(response),
+                    ResponseData = deserialized
+                };
+            }
+        }
+
+        protected virtual HttpRequestMessage CreateHttpRequest(IHttpClientRequest clientRequest)
         {
             IHttpClientRequest requestCopy = new HttpClientRequest(clientRequest);
             requestCopy.Authentication = requestCopy.Authentication ?? _auth;
             Uri requestUri = requestCopy.BuildRequestUri(this);
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(requestUri);
-            request.Method = requestCopy.Method;
-            request.Timeout = Timeout;
-            request.ContentType = requestCopy.ContentType;
-            request.UserAgent = UserAgent;
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+            // BasicHttpAuth (and similar) inject auth headers into requestCopy.Headers here.
+            // ICredentials-based challenge auth (HttpWebRequest.Credentials) is no longer supported —
+            // implement IAuthentication.ApplyManualAuthentication instead.
             requestCopy.Authentication?.ApplyManualAuthentication(requestCopy);
-            request.Credentials = requestCopy.Authentication;
+
+            var request = new HttpRequestMessage(new HttpMethod(requestCopy.Method), requestUri);
+
+            if (!string.IsNullOrEmpty(UserAgent))
+                request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
+
             foreach (var x in Headers)
-                request.Headers[x.Key] = x.Value?.ToString();
+                TryAddHeader(request, x.Key, x.Value?.ToString());
             foreach (var x in requestCopy.Headers)
-                request.Headers[x.Key] = x.Value?.ToString();
-            if (requestCopy.Method != "POST") return request;
-            byte[] serialized = Serialize(requestCopy.Body, requestCopy.ContentType);
-            using (Stream requestStream = request.GetRequestStream())
-                requestStream.Write(serialized, 0, serialized.Length);
-            if (!Logger.IsTracingEnabled) return request;
-            Logger.Trace($"Performing Http Request:");
-            Logger.Trace($"[{request.Method}] {request.RequestUri}");
-            Logger.Trace($"[BODY] {requestCopy.Body}");
-            foreach (var x in request.Headers.AllKeys)
+                TryAddHeader(request, x.Key, x.Value?.ToString());
+
+            // Preserve original behavior: only POST carries a body.
+            if (requestCopy.Method == "POST")
             {
-                Logger.Trace($"[HEADER] {x}={request.Headers[x]}");
+                byte[] serialized = Serialize(requestCopy.Body, requestCopy.ContentType);
+                var content = new ByteArrayContent(serialized ?? Array.Empty<byte>());
+                if (!string.IsNullOrEmpty(requestCopy.ContentType))
+                {
+                    try
+                    {
+                        content.Headers.ContentType = MediaTypeHeaderValue.Parse(requestCopy.ContentType);
+                    }
+                    catch
+                    {
+                        // best-effort — ignore unparseable content type
+                    }
+                }
+                request.Content = content;
             }
+
+            if (Logger.IsTracingEnabled)
+            {
+                Logger.Trace("Performing Http Request:");
+                Logger.Trace($"[{request.Method}] {request.RequestUri}");
+                Logger.Trace($"[BODY] {requestCopy.Body}");
+                foreach (var h in request.Headers)
+                    Logger.Trace($"[HEADER] {h.Key}={string.Join(",", h.Value)}");
+                if (request.Content?.Headers != null)
+                {
+                    foreach (var h in request.Content.Headers)
+                        Logger.Trace($"[HEADER] {h.Key}={string.Join(",", h.Value)}");
+                }
+            }
+
             return request;
+        }
+
+        private static void TryAddHeader(HttpRequestMessage request, string key, string value)
+        {
+            if (string.IsNullOrEmpty(key) || value == null) return;
+            // Content-Type belongs on Content.Headers — handled when the POST body is attached.
+            if (string.Equals(key, "Content-Type", StringComparison.OrdinalIgnoreCase)) return;
+
+            if (!request.Headers.TryAddWithoutValidation(key, value))
+                request.Content?.Headers.TryAddWithoutValidation(key, value);
+        }
+
+        private static HttpHeaders BuildHeaders(HttpResponseMessage response)
+        {
+            var headers = new HttpHeaders();
+            foreach (var h in response.Headers)
+                headers[h.Key] = string.Join(",", h.Value);
+            if (response.Content?.Headers != null)
+            {
+                foreach (var h in response.Content.Headers)
+                    headers[h.Key] = string.Join(",", h.Value);
+            }
+            return headers;
         }
 
         private void LogErrorResponse(byte[] data)
         {
             string responseData = string.Empty;
-
             try
             {
                 responseData = Encoding.UTF8.GetString(data);
             }
             catch { }
 
-            if (Logger.IsTracingEnabled && responseData.Contains("errors")) //not the best way to do it, but couldn't see any other way
+            if (Logger.IsTracingEnabled && responseData.Contains("errors"))
             {
                 Logger.Trace($"Error Response: {responseData}");
-            }
-        }
-
-        protected virtual byte[] ReadStream(Stream inputStream)
-        {
-            byte[] buffer = new byte[16 * 1024];
-            using (MemoryStream outputStream = new MemoryStream())
-            {
-                int read;
-                while ((read = inputStream.Read(buffer, 0, buffer.Length)) > 0)
-                    outputStream.Write(buffer, 0, read);
-                return outputStream.ToArray();
-            }
-        }
-
-        protected virtual async Task<byte[]> ReadStreamAsync(Stream inputStream, CancellationToken cancellationToken)
-        {
-            byte[] buffer = new byte[16 * 1024];
-            using (var outputStream = new MemoryStream())
-            {
-                int read;
-                while ((read = await inputStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
-                    outputStream.Write(buffer, 0, read);
-                return outputStream.ToArray();
             }
         }
 
@@ -307,7 +309,7 @@ namespace Tridion.Dxa.Api.Client.HttpClient
             return JsonConvert.DeserializeObject<T>(json, settings);
         }
 
-        protected T RetryBlock<T>(Func<T> block, int retryCount)
+        protected async Task<T> RetryBlockAsync<T>(Func<Task<T>> block, int retryCount)
         {
             if (retryCount < 0)
                 return default(T);
@@ -318,36 +320,53 @@ namespace Tridion.Dxa.Api.Client.HttpClient
                 retryCount--;
                 try
                 {
-                    return block();
+                    return await block().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    WebException webException = e as WebException;
-                    if (webException != null)
+                    if (e is HttpClientException hce)
                     {
-                        Logger.Debug($"Received web exception status code = {webException.Status}");
+                        Logger.Debug($"Received HTTP error status code = {hce.StatusCode}");
                     }
+                    else if (e is HttpRequestException hre)
+                    {
+                        Logger.Debug($"Received HTTP exception: {hre.Message}");
+                    }
+
                     if (retryCount <= 0)
                     {
                         Logger.Debug("Failed to receive a valid response after exhausting all retry attempts..");
-                        if (webException == null) throw;
-                        if (webException.Response == null) throw;
-                        var responseStream = webException.Response.GetResponseStream();
-                        if (responseStream == null) throw;
-                        var resp = new StreamReader(responseStream).ReadToEnd();
-                        dynamic obj = JsonConvert.DeserializeObject(resp);
-                        var serverResponseMsg = obj.error.message;
-                        Logger.Debug($"Response message from server was {serverResponseMsg}");
+
+                        if (e is HttpClientException finalHce && !string.IsNullOrEmpty(finalHce.Response))
+                        {
+                            try
+                            {
+                                dynamic obj = JsonConvert.DeserializeObject(finalHce.Response);
+                                var serverResponseMsg = obj?.error?.message;
+                                if (serverResponseMsg != null)
+                                    Logger.Debug($"Response message from server was {serverResponseMsg}");
+                            }
+                            catch
+                            {
+                                // body may not be JSON — ignore
+                            }
+                        }
+
                         throw;
                     }
 
                     Logger.Debug($"Sleeping for {sleepTime}ms");
-                    Thread.Sleep(sleepTime);
+                    await Task.Delay(sleepTime).ConfigureAwait(false);
                     sleepTime += sleepTime;
                 }
             }
 
             return default(T);
+        }
+
+        public void Dispose()
+        {
+            _http?.Dispose();
         }
     }
 }

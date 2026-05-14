@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\testing\dxa-pca-client-net\dotnet\src\Tridion.Dxa.Api.Client\Tridion.Dxa.Api.Client.csproj" />
+    <ProjectReference Include="..\Tridion.Dxa.Api.Client\Tridion.Dxa.Api.Client.csproj" />
   </ItemGroup>
 
 </Project>

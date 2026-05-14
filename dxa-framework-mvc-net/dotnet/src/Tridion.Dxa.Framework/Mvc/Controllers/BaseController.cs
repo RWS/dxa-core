@@ -153,10 +153,37 @@ namespace Sdl.Web.Mvc.Controllers
                 tempRouteData.Values["area"] = controllerAreaName;
                 tempRouteData.Values["action"] = controllerActionName;
 
+                // Also copy route parameters from original request
+                foreach (var routeValue in HttpContext.Request.RouteValues)
+                {
+                    if (!tempRouteData.Values.ContainsKey(routeValue.Key))
+                    {
+                        tempRouteData.Values[routeValue.Key] = routeValue.Value;
+                    }
+                }
+
+                // FIX: Create temporary context WITH query string copied from original
                 var tempHttpContext = new DefaultHttpContext
                 {
                     RequestServices = HttpContext.RequestServices
                 };
+
+                // CRITICAL: Copy the query string from the original request
+                tempHttpContext.Request.QueryString = HttpContext.Request.QueryString;
+                tempHttpContext.Request.Query = HttpContext.Request.Query;
+
+                // Also copy other important request properties
+                tempHttpContext.Request.Method = HttpContext.Request.Method;
+                tempHttpContext.Request.Scheme = HttpContext.Request.Scheme;
+                tempHttpContext.Request.Host = HttpContext.Request.Host;
+                tempHttpContext.Request.Path = HttpContext.Request.Path;
+                tempHttpContext.Request.PathBase = HttpContext.Request.PathBase;
+
+                // Copy headers if needed (for authentication, etc.)
+                foreach (var header in HttpContext.Request.Headers)
+                {
+                    tempHttpContext.Request.Headers[header.Key] = header.Value;
+                }
 
                 //Properly resolve the controller type based on controller name .NET core strict with ControllerActionDescriptor
                 Type controllerType = ResolveControllerType(controllerName, controllerAreaName);

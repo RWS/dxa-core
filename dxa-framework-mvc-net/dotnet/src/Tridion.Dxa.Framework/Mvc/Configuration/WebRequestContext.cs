@@ -7,6 +7,8 @@ using Sdl.Web.Mvc.Context;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
+
 
 namespace Sdl.Web.Mvc.Configuration
 {
@@ -105,7 +107,8 @@ namespace Sdl.Web.Mvc.Configuration
         /// <summary>
         /// String array of client-supported MIME accept types
         /// </summary>
-        public string[] AcceptTypes => null;//HttpContext.Current.Request.AcceptTypes;
+
+        public string[] AcceptTypes => _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Accept?.Select(a => a.MediaType.Value).ToArray() ?? Array.Empty<string>();
 
         /// <summary>
         /// Current Page Model

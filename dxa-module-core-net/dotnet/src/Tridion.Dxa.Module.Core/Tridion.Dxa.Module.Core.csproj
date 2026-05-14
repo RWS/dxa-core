@@ -11,10 +11,11 @@
     <Company>RWS</Company>
     <Product>Tridion.Dxa.Module.Core</Product>
     <Description>RWS Digital eXperience Accelerator Framework for Tridion Sites.</Description>
-    <PackageTags>DXA;.NET;.RWS,SDL</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>DXA;.NET;RWS;SDL</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/RWS/dxa-core/tree/develop/dxa-module-core-net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RWS/dxa-core</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <PackageIcon>images/rws-logo-128.png</PackageIcon>
@@ -30,7 +31,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.19" />
-    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0-beta-20251128091559" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.0" />
   </ItemGroup>
 
   <!-- Explicitly include views as embedded resources -->

@@ -48,7 +48,7 @@ namespace Sdl.Web.Mvc.Controllers
                     try
                     {
 
-                        pageModel = ContentProvider.GetPageModel(absoluteUrlPath, WebRequestContext.Current.Localization, addIncludes);
+                        pageModel = ContentProvider.GetPageModel(absoluteUrlPath, WebRequestContext.Current?.Localization, addIncludes);
                     }
                     catch (DxaItemNotFoundException ex)
                     {

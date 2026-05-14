@@ -130,9 +130,10 @@ namespace Sdl.Web.Tridion.Mapping
         }
 
         public static void Init()
-        {            
-            // force static construction
-            Log.Info($"Initializing ModelBuilderPipeline.");            
+        {
+            // No-op call whose only purpose is to trigger the static constructor (which performs the actual one-time init).
+            // Logged at Debug because callers like DefaultContentProvider invoke this per-instance, but real init happens only once.
+            Log.Debug($"ModelBuilderPipeline.Init() invoked (static ctor already ran).");
         }
 
         /// <summary>
