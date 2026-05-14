@@ -196,8 +196,8 @@ function Release-Package($release) {
     # 2. Build (uses existing build.proj target - produces a-local-... nupkg for sanity).
     #    /p:RestoreAdditionalProjectSources points NuGet at our shared LocalNugetStorage so
     #    refs to freshly-published 2.4.0 packages (datamodel, pca-client) resolve locally.
-    #    /p:RestoreForce=true /p:RestoreNoCache=true bypasses NuGet's HTTP cache from any earlier failed restore.
-    Invoke-Cmd "msbuild build.proj /t:Build /p:BuildConfiguration=Release /p:VersionPrefix=$Version /p:RestoreAdditionalProjectSources=`"$SharedLocalStorage`" /p:RestoreForce=true /p:RestoreNoCache=true" $buildDir
+    #    /p:RestoreForce=true /p:RestoreNoHttpCache=true bypasses NuGet's HTTP cache from any earlier failed restore.
+    Invoke-Cmd "msbuild build.proj /t:Build /p:BuildConfiguration=Release /p:VersionPrefix=$Version /p:RestoreAdditionalProjectSources=`"$SharedLocalStorage`" /p:RestoreForce=true /p:RestoreNoHttpCache=true" $buildDir
 
     # 3. Sign the built assemblies (uses the existing target).
     if (-not $SkipSign) {
@@ -242,6 +242,15 @@ Write-Host "Dry run        : $DryRun"
 Write-Host "Skip sign      : $SkipSign"
 Write-Host "Skip push      : $SkipPush"
 Write-Host "Non-interactive: $NonInteractive"
+
+# Pre-create the shared LocalNugetStorage so the very first msbuild restore (which has
+# /p:RestoreAdditionalProjectSources pointing here) doesn't fail with NU1301 on a fresh
+# checkout (e.g. on CI runners, where the folder is gitignored and absent until first pack).
+if (-not (Test-Path $SharedLocalStorage)) {
+    Write-Host "Creating shared local source: $SharedLocalStorage" -ForegroundColor DarkGray
+    if (-not $DryRun) { New-Item -ItemType Directory -Path $SharedLocalStorage -Force | Out-Null }
+}
+
 Confirm-Continue "Proceed with release of ${Version}?"
 
 foreach ($r in $releases) {
