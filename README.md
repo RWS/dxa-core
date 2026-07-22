@@ -33,7 +33,7 @@ The `Release-Dxa.ps1` script at the repo root drives a full multi-package releas
 Each package step:
 - `msbuild build.proj /t:Build` (uses the existing per-component build target)
 - `msbuild build.proj /t:SignAssemblies` (skip with `-SkipSign` on machines without a code-signing cert)
-- `dotnet pack` with `/p:VersionSuffix=""` to produce a clean stable `2.4.0.nupkg` (the default `SignPackAndPushNuGetPackages` target stamps a `beta-{timestamp}` suffix; we bypass it)
+- `dotnet pack` with `/p:VersionSuffix=""` to produce a clean stable `2.4.1.nupkg` (the default `SignPackAndPushNuGetPackages` target stamps a `beta-{timestamp}` suffix; we bypass it)
 - `dotnet nuget push` to the target feed (skip with `-SkipPush`)
 - Copies the produced `.nupkg` into the shared `LocalNugetStorage/` at the repo root, and the next component's restore picks it up via `/p:RestoreAdditionalProjectSources` (no Nexus propagation delay)
 
@@ -57,7 +57,7 @@ Each package step:
 
 | Parameter | Default | Purpose |
 |---|---|---|
-| `-Version` | `2.4.0` | Stable version. Becomes `VersionPrefix`; `VersionSuffix` is forced empty. |
+| `-Version` | `2.4.1` | Stable version. Becomes `VersionPrefix`; `VersionSuffix` is forced empty. |
 | `-NuGetSource` | Internal Nexus URL | Target feed for `dotnet nuget push`. |
 | `-ApiKey` | `(from build.proj)` | API key for push. |
 | `-SkipSign` | `false` | Skip `SignAssemblies` target. |
@@ -67,12 +67,12 @@ Each package step:
 
 ### After a successful release
 
-1. Smoke-test a clean restore in a downstream consumer (e.g. `dxa-web-application-mvc-net`) to confirm `2.4.0` resolves from the target feed.
+1. Smoke-test a clean restore in a downstream consumer (e.g. `dxa-web-application-mvc-net`) to confirm `2.4.1` resolves from the target feed.
 2. Commit the csproj reference bumps the script made:
    ```
    git add -- '**/*.csproj'
-   git commit -m 'Release 2.4.0'
-   git tag v2.4.0
+   git commit -m 'Release 2.4.1'
+   git tag v2.4.1
    git push origin develop --tags
    ```
 3. Update release notes.

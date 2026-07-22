@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       # Builds every DXA component in dependency order (datamodel -> pca-client -> framework-mvc),
-      # packs clean 2.4.0 nupkgs, and primes the shared LocalNugetStorage so downstream restores
+      # packs clean 2.4.1 nupkgs, and primes the shared LocalNugetStorage so downstream restores
       # resolve locally. -SkipPush keeps it a CI build (no Nexus push). -SkipSign avoids the
       # signing step which needs a cert that isn't on CI runners.
       - name: Build & pack all DXA packages

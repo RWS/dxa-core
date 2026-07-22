@@ -4,8 +4,8 @@
 
 .DESCRIPTION
     Bypasses build.proj's SignPackAndPushNuGetPackages target (which auto-stamps a
-    beta-{timestamp} suffix) so we get clean, stable version packages - e.g. 2.4.0
-    instead of 2.4.0-beta-20260514153012.
+    beta-{timestamp} suffix) so we get clean, stable version packages - e.g. 2.4.1
+    instead of 2.4.1-beta-20260514153012.
 
     Release order:
       1. Tridion.Dxa.Framework.DataModel   (from dxa-framework-datamodel)
@@ -17,7 +17,7 @@
     Each repo: msbuild /t:Build -> msbuild /t:SignAssemblies -> dotnet pack -> dotnet nuget push.
 
 .PARAMETER Version
-    Stable version, default 2.4.0. Goes into VersionPrefix; VersionSuffix is forced empty.
+    Stable version, default 2.4.1. Goes into VersionPrefix; VersionSuffix is forced empty.
 
 .PARAMETER NuGetSource
     Target NuGet feed URL. Defaults to internal Nexus.
@@ -47,11 +47,11 @@
 
 .EXAMPLE
     .\Release-Dxa.ps1
-    Full release of 2.4.0 to internal Nexus, with confirmation between stages.
+    Full release of 2.4.1 to internal Nexus, with confirmation between stages.
 #>
 [CmdletBinding()]
 param(
-    [string]$Version       = "2.4.0",
+    [string]$Version       = "2.4.1",
     [string]$NuGetSource   = "https://nexus.sdl.com/service/local/nuget/releases_dotnet/",
     [string]$ApiKey        = "fed9a610-8898-3986-877e-1001ba1f858d",
     [switch]$SkipSign,
@@ -195,7 +195,7 @@ function Release-Package($release) {
 
     # 2. Build (uses existing build.proj target - produces a-local-... nupkg for sanity).
     #    /p:RestoreAdditionalProjectSources points NuGet at our shared LocalNugetStorage so
-    #    refs to freshly-published 2.4.0 packages (datamodel, pca-client) resolve locally.
+    #    refs to freshly-published 2.4.1 packages (datamodel, pca-client) resolve locally.
     #    /p:RestoreForce=true /p:RestoreNoHttpCache=true bypasses NuGet's HTTP cache from any earlier failed restore.
     Invoke-Cmd "msbuild build.proj /t:Build /p:BuildConfiguration=Release /p:VersionPrefix=$Version /p:RestoreAdditionalProjectSources=`"$SharedLocalStorage`" /p:RestoreForce=true /p:RestoreNoHttpCache=true" $buildDir
 
