@@ -7,9 +7,9 @@ Build status
 
 Prerequisites
 -------------
-For building .NET 8 repositories you must have the following installed:
-- Visual Studio 2022
-- .NET 8
+For building .NET 8 and .NET 10 repositories you must have the following installed:
+- Visual Studio 2022 or higher
+- .NET 8 and .NET 10 SDKs
 
 Build (single component)
 ------------------------
