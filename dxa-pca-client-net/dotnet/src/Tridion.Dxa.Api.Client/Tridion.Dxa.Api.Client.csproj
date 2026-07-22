@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\Shared\SigningServerTridionPublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>
