@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="$(MicrosoftAspNetCorePackageVersion)" />
-    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.1" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.1-preview-20260821114249" />
   </ItemGroup>
 
   <!-- Explicitly include views as embedded resources -->

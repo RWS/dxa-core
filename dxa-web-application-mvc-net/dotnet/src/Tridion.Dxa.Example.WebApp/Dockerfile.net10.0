@@ -1,15 +1,15 @@
 # Build from repo root:
-#   docker build -f dxa-web-application-mvc-net/dotnet/src/Tridion.Dxa.Example.WebApp/Dockerfile -t dxa-example-webapp:net8 .
+#   docker build -f dxa-web-application-mvc-net/dotnet/src/Tridion.Dxa.Example.WebApp/Dockerfile.net10.0 -t dxa-example-webapp:net10 .
 
 # Use official ASP.NET Core runtime as base image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 80
 EXPOSE 443
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Add the internal Nexus repository for restoring packages
@@ -28,7 +28,7 @@ COPY LocalNugetStorage/ ./LocalNugetStorage/
 ENV WEBAPP_CSPROJ=dxa-web-application-mvc-net/dotnet/src/Tridion.Dxa.Example.WebApp/Tridion.Dxa.Example.WebApp.csproj
 
 RUN dotnet restore "$WEBAPP_CSPROJ" \
-    -p:TargetFrameworks=net8.0 \
+    -p:TargetFrameworks=net10.0 \
     --source https://api.nuget.org/v3/index.json \
     --source https://nexus.sdl.com/repository/releases_dotnet/index.json \
     --source /src/LocalNugetStorage
@@ -37,7 +37,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
     (dotnet dev-certs https --trust || true)
 
-RUN dotnet publish "$WEBAPP_CSPROJ" -c Release -f net8.0 -o /app/publish \
+RUN dotnet publish "$WEBAPP_CSPROJ" -c Release -f net10.0 -o /app/publish \
     --no-restore
 
 # Final stage

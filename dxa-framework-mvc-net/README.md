@@ -4,8 +4,8 @@ DXA ASP.NET Core MVC Framework
 Prerequisites
 -------------
 For building .NET repositories you must have the following installed:
-- Visual Studio 2022
-- .NET Framework .Net Core 8.0
+- Visual Studio 2022 or higher
+- .NET 8 and .NET 10 SDKs
 
 Build
 -----

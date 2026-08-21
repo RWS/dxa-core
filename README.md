@@ -28,7 +28,8 @@ The `Release-Dxa.ps1` script at the repo root drives a full multi-package releas
 1. **Tridion.Dxa.Framework.DataModel** (from `dxa-framework-datamodel`)
 2. **Tridion.Dxa.Api.Client** (from `dxa-pca-client-net`)
 3. **Tridion.Dxa.Framework** (from `dxa-framework-mvc-net`) — package refs for #1 and #2 are auto-bumped before this builds.
-4. Bumps the `Tridion.Dxa.Framework` `<PackageReference>` in each consumer csproj: `dxa-module-core-net`, `dxa-module-dynamicdocumentation-net`, `dxa-module-search-net`, `dxa-web-application-mvc-net`.
+4. **Tridion.Dxa.Module.Core**, **Tridion.Dxa.Module.Search**, **Tridion.Dxa.Module.DynamicDocumentation** — Framework package refs are auto-bumped before each module builds.
+5. Bumps the `Tridion.Dxa.Framework` `<PackageReference>` in the Example WebApp (`dxa-web-application-mvc-net`).
 
 Each package step:
 - `msbuild build.proj /t:Build` (uses the existing per-component build target)
@@ -46,10 +47,13 @@ Each package step:
 # Local smoke test: builds & packs all components, doesn't push to any feed.
 .\Release-Dxa.ps1 -SkipPush
 
-# Full release to internal Nexus.
+# Full stable release of 2.4.1 to internal Nexus.
 .\Release-Dxa.ps1
 
-# After Nexus has been verified, re-publish to public NuGet.org.
+# Preview release to internal Nexus only (e.g. 2.4.1-preview-20260821122600).
+.\Release-Dxa.ps1 -Preview -NonInteractive
+
+# After Nexus has been verified, re-publish a stable build to public NuGet.org.
 .\Release-Dxa.ps1 -NuGetSource https://api.nuget.org/v3/index.json -ApiKey <nuget-org-key>
 ```
 
@@ -57,7 +61,8 @@ Each package step:
 
 | Parameter | Default | Purpose |
 |---|---|---|
-| `-Version` | `2.4.1` | Stable version. Becomes `VersionPrefix`; `VersionSuffix` is forced empty. |
+| `-Version` | `2.4.1` | Version prefix (`VersionPrefix`). Stable packs with empty suffix; `-Preview` appends `preview-{timestamp}`. |
+| `-Preview` | `false` | Pack/push `{Version}-preview-{yyyyMMddHHmmss}` to Nexus only (refuses nuget.org). |
 | `-NuGetSource` | Internal Nexus URL | Target feed for `dotnet nuget push`. |
 | `-ApiKey` | `(from build.proj)` | API key for push. |
 | `-SkipSign` | `false` | Skip `SignAssemblies` target. |
@@ -76,6 +81,82 @@ Each package step:
    git push origin develop --tags
    ```
 3. Update release notes.
+
+Docker (Example WebApp)
+-----------------------
+The Example WebApp multi-targets `net8.0` and `net10.0`. Build **one image per TFM** from the repo root (after packing packages into `LocalNugetStorage/` via `.\Release-Dxa.ps1 -SkipPush -SkipSign -NonInteractive`):
+
+```powershell
+# .NET 8
+docker build -f dxa-web-application-mvc-net/dotnet/src/Tridion.Dxa.Example.WebApp/Dockerfile -t dxa-example-webapp:net8 .
+
+# .NET 10
+docker build -f dxa-web-application-mvc-net/dotnet/src/Tridion.Dxa.Example.WebApp/Dockerfile.net10.0 -t dxa-example-webapp:net10 .
+```
+
+ARM runtime images (publish output copied in separately):
+
+- `ARM.Dockerfile` — ASP.NET 8.0 Alpine arm64v8
+- `ARM.Dockerfile.net10.0` — ASP.NET 10.0 Alpine arm64v8
+
+Folder publish profiles:
+
+- `Properties/PublishProfiles/FolderProfile.pubxml` → `net8.0`
+- `Properties/PublishProfiles/FolderProfile.net10.0.pubxml` → `net10.0`
+
+Migrating from .NET 8 to .NET 10
+-------------------------------
+
+### For consumers using published NuGet packages
+
+Use this path if your site references `Tridion.Dxa.*` from Nexus or NuGet.org and you do not build DXA from this repository.
+
+**Prerequisites**
+- Install the [.NET 10 SDK](https://dotnet.microsoft.com/download) for builds; install the ASP.NET Core 10 runtime on deploy hosts.
+- Use DXA packages **2.4.1 or later**. Those packages multi-target `net8.0` and `net10.0` (`lib/net8.0` and `lib/net10.0`). Packages built only for `net8.0` will not provide a net10 asset.
+
+**Steps**
+1. In your web application `.csproj`, change the target framework to .NET 10:
+   ```xml
+   <TargetFramework>net10.0</TargetFramework>
+   ```
+   (Or multi-target `net8.0;net10.0` if you must support both during a transition.)
+2. Update all `Tridion.Dxa.*` package references to **2.4.1+**, for example:
+   ```xml
+   <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.1" />
+   <PackageReference Include="Tridion.Dxa.Module.Core" Version="2.4.1" />
+   ```
+   Repeat for any other DXA modules you use (`Module.Search`, `Module.DynamicDocumentation`, etc.). Prefer:
+   ```powershell
+   dotnet add package Tridion.Dxa.Framework --version 2.4.1
+   ```
+3. Bump Microsoft ASP.NET Core / Extensions packages your app references to **10.0.x** (match the shared framework). Do not keep AspNetCore **8.0.x** packages on a `net10.0` app.
+4. Restore, build, and publish for net10:
+   ```powershell
+   dotnet restore
+   dotnet build -c Release -f net10.0
+   dotnet publish -c Release -f net10.0 -o ./publish
+   ```
+5. Deploy onto hosts or containers that run the **ASP.NET Core 10** runtime (not the .NET 8 runtime image).
+
+NuGet resolves `lib/net10.0` from the DXA packages automatically when your project targets `net10.0`—no extra package IDs or TFM suffixes are required.
+
+**Smoke checklist**
+- Restore succeeds against your feed (Nexus / NuGet.org)
+- App builds and starts on ASP.NET Core 10
+- Pages render; DXA modules initialize as before
+
+**Known warnings (non-blocking)**  
+Building against net10 may surface ASP.NET deprecation warnings (for example `ASPDEPR003` Razor runtime compilation, `ASPDEPR005` `KnownNetworks`, `ASPDEPR006` `IActionContextAccessor`). They do not fail the build unless warnings-as-errors is enabled.
+
+### Building or deploying this repository
+
+For people working in `dxa-core` itself (not required for NuGet-only consumers):
+
+- Folder publish: `-f net10.0` or `FolderProfile.net10.0.pubxml`
+- x64 Docker: `Dockerfile.net10.0`
+- ARM: `ARM.Dockerfile.net10.0`
+- Shared Microsoft package bands for net10 live in the root `Directory.Build.props`
 
 About
 -----

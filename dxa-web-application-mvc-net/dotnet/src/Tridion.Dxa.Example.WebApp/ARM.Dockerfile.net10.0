@@ -1,0 +1,18 @@
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.11-alpine3.23-arm64v8
+
+ARG source
+WORKDIR /app
+EXPOSE 80
+COPY ${source:-obj/Docker/publishARM} .
+
+RUN apk update && \
+    apk upgrade && \
+    apk add netcat; \
+    apk add icu-libs; \
+    apk add icu-data-full; \
+    chmod +x ./containerBootstrap.sh
+
+# Disable the invariant mode (set in base image)
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+ENTRYPOINT ./containerBootstrap.sh

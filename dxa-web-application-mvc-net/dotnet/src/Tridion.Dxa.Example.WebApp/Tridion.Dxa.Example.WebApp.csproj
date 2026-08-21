@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageReference Include="NLog.Extensions.Logging" Version="6.0.3" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="6.0.3" />
-    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.1" />
+    <PackageReference Include="Tridion.Dxa.Framework" Version="2.4.1-preview-20260821114249" />
   </ItemGroup>
   
   <ItemGroup>

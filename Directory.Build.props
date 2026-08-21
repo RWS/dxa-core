@@ -4,21 +4,21 @@
 
     <!-- Shared Microsoft package bands per TFM -->
     <MicrosoftAspNetCorePackageVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.19</MicrosoftAspNetCorePackageVersion>
-    <MicrosoftAspNetCorePackageVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</MicrosoftAspNetCorePackageVersion>
+    <MicrosoftAspNetCorePackageVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</MicrosoftAspNetCorePackageVersion>
 
     <MicrosoftExtensionsConfigurationVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.0</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</MicrosoftExtensionsConfigurationVersion>
 
     <MicrosoftExtensionsConfigurationBinderVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.2</MicrosoftExtensionsConfigurationBinderVersion>
-    <MicrosoftExtensionsConfigurationBinderVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</MicrosoftExtensionsConfigurationBinderVersion>
+    <MicrosoftExtensionsConfigurationBinderVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</MicrosoftExtensionsConfigurationBinderVersion>
 
     <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.1</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</MicrosoftExtensionsDependencyInjectionVersion>
 
     <MicrosoftExtensionsHostingVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.1</MicrosoftExtensionsHostingVersion>
-    <MicrosoftExtensionsHostingVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</MicrosoftExtensionsHostingVersion>
+    <MicrosoftExtensionsHostingVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</MicrosoftExtensionsHostingVersion>
 
     <SystemServiceModelSyndicationVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.0</SystemServiceModelSyndicationVersion>
-    <SystemServiceModelSyndicationVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.0</SystemServiceModelSyndicationVersion>
+    <SystemServiceModelSyndicationVersion Condition="'$(TargetFramework)' == 'net10.0'">10.0.11</SystemServiceModelSyndicationVersion>
   </PropertyGroup>
 </Project>

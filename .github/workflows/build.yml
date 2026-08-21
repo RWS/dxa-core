@@ -34,10 +34,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      # Builds every DXA component in dependency order (datamodel -> pca-client -> framework-mvc),
+      # Builds every DXA component in dependency order (datamodel -> pca-client -> framework-mvc -> modules),
       # packs clean 2.4.1 nupkgs, and primes the shared LocalNugetStorage so downstream restores
       # resolve locally. -SkipPush keeps it a CI build (no Nexus push). -SkipSign avoids the
       # signing step which needs a cert that isn't on CI runners.
       - name: Build & pack all DXA packages
         shell: pwsh
         run: .\Release-Dxa.ps1 -SkipPush -SkipSign -NonInteractive
+
+      # Prove modules + Example WebApp compile for both net8.0 and net10.0 against the packed packages.
+      - name: Build modules and Example WebApp
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $restoreSource = Join-Path $PWD 'LocalNugetStorage'
+          $projects = @(
+            'dxa-module-core-net\dotnet\src\Tridion.Dxa.Module.Core\Tridion.Dxa.Module.Core.csproj',
+            'dxa-module-search-net\dotnet\src\Tridion.Dxa.Module.Search\Tridion.Dxa.Module.Search.csproj',
+            'dxa-module-dynamicdocumentation-net\dotnet\src\Tridion.Dxa.Module.DynamicDocumentation\Tridion.Dxa.Module.DynamicDocumentation.csproj',
+            'dxa-web-application-mvc-net\dotnet\src\Tridion.Dxa.Example.WebApp\Tridion.Dxa.Example.WebApp.csproj'
+          )
+          foreach ($p in $projects) {
+            Write-Host "==== Building $p ====" -ForegroundColor Cyan
+            dotnet build $p -c Release /p:RestoreAdditionalProjectSources="$restoreSource"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+      - name: Publish Example WebApp (net8.0 and net10.0)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $webapp = 'dxa-web-application-mvc-net\dotnet\src\Tridion.Dxa.Example.WebApp\Tridion.Dxa.Example.WebApp.csproj'
+          dotnet publish $webapp -c Release -f net8.0 -o artifacts/webapp-net8 --no-build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet publish $webapp -c Release -f net10.0 -o artifacts/webapp-net10 --no-build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
