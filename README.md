@@ -54,8 +54,11 @@ Each package step:
 .\Release-Dxa.ps1 -Preview -NonInteractive
 
 # After Nexus has been verified, re-publish a stable build to public NuGet.org.
+# Create the API key first: see NuGetApiToken.md
 .\Release-Dxa.ps1 -NuGetSource https://api.nuget.org/v3/index.json -ApiKey <nuget-org-key>
 ```
+
+Create a nuget.org API token before a public push: [NuGetApiToken.md](NuGetApiToken.md).
 
 ### Parameters
 
@@ -64,7 +67,7 @@ Each package step:
 | `-Version` | `2.4.1` | Version prefix (`VersionPrefix`). Stable packs with empty suffix; `-Preview` appends `preview-{timestamp}`. |
 | `-Preview` | `false` | Pack/push `{Version}-preview-{yyyyMMddHHmmss}` to Nexus only (refuses nuget.org). |
 | `-NuGetSource` | Internal Nexus URL | Target feed for `dotnet nuget push`. |
-| `-ApiKey` | `(from build.proj)` | API key for push. |
+| `-ApiKey` | `(from build.proj)` | API key for push. For nuget.org, create a token as in [NuGetApiToken.md](NuGetApiToken.md). |
 | `-SkipSign` | `false` | Skip `SignAssemblies` target. |
 | `-SkipPush` | `false` | Build & pack only; do not push. |
 | `-DryRun` | `false` | Print commands without executing. |
