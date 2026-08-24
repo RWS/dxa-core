@@ -147,7 +147,15 @@ NuGet resolves `lib/net10.0` from the DXA packages automatically when your proje
 - Pages render; DXA modules initialize as before
 
 **Known warnings (non-blocking)**  
-Building against net10 may surface ASP.NET deprecation warnings (for example `ASPDEPR003` Razor runtime compilation, `ASPDEPR005` `KnownNetworks`, `ASPDEPR006` `IActionContextAccessor`). They do not fail the build unless warnings-as-errors is enabled.
+Building against net10 may surface ASP.NET deprecation warnings. They do not fail the build unless warnings-as-errors is enabled. Suggested resolutions:
+
+| ID | API | Where it appears in DXA | Resolution |
+| --- | --- | --- | --- |
+| `ASPDEPR003` | Razor runtime compilation (`AddRazorRuntimeCompilation`, `MvcRazorRuntimeCompilationOptions`) | Example web app `Startup.cs`; framework `AddDxaModule` (embedded module views) | Prefer build-time view compilation (`*.Views.dll` / `CompiledRazorAssemblyPart`, already used when a views assembly exists). In Development, use Hot Reload instead of runtime compilation. Restrict `AddRazorRuntimeCompilation` to Development only if you still need on-disk or embedded `.cshtml` edits without a rebuild. Runtime compilation is not recommended in production. |
+| `ASPDEPR005` | `ForwardedHeadersOptions.KnownNetworks` / `Microsoft.AspNetCore.HttpOverrides.IPNetwork` | Example web app `LoggingMiddleware` (trace logging of forwarded-header options) | Log `KnownIPNetworks` and `System.Net.IPNetwork` instead of `KnownNetworks`. If you configure trusted proxy ranges, add them to `KnownIPNetworks` (prefix host bits must be zero). |
+| `ASPDEPR006` | `IActionContextAccessor` / `ActionContextAccessor` | Framework `AddDxa` / `AddDxaWebApi` registration; `HtmlHelperExtensions.Action` nested action render | Microsoft’s replacement is `IHttpContextAccessor` plus `HttpContext.GetEndpoint()` for *reading* action metadata. DXA still *writes* a child `ActionContext` while rendering nested `Html.Action` calls, so a full drop-in is not available yet. Planned path: invoke via `IActionInvokerFactory` on an explicit `ActionContext`, set the child `HttpContext` (and endpoint metadata) on `IHttpContextAccessor`, and remove the accessor registration. Until then, keep the current usage; it remains functional on net10. |
+
+See also: [ASPDEPR003](https://aka.ms/aspnet/deprecate/003), [ASPDEPR005](https://aka.ms/aspnet/deprecate/005), [ASPDEPR006](https://aka.ms/aspnet/deprecate/006).
 
 ### Building or deploying this repository
 
