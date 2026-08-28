@@ -60,6 +60,9 @@ ScaffoldingReadMe.txt
 # Local NuGet feed folders (produced by Release-Dxa.ps1 and build.proj GenerateLocalNuGetPackages target)
 **/LocalNugetStorage/
 
+# Generated CM test Dockerfiles (New-CmTestDockerfile.ps1)
+**/Dockerfile*.cmtest
+
 # Others
 ~$*
 *~

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\Shared\SigningServerTridionPublicKey.snk</AssemblyOriginatorKeyFile>
     <DelaySign>True</DelaySign>

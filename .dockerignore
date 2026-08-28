@@ -1,0 +1,16 @@
+.git
+.github
+**/.vs
+**/bin
+**/obj
+**/*.user
+**/*.suo
+
+# Components not needed for Example.WebApp image
+dxa-framework-datamodel
+dxa-framework-mvc-net
+dxa-module-dynamicdocumentation-net
+dxa-module-search-net
+dxa-pca-client-net
+
+# Keep LocalNugetStorage, Directory.Build.props, dxa-web-application-mvc-net, dxa-module-core-net
